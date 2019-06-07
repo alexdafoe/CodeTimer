@@ -35,9 +35,6 @@ public:
     QString getNote() const;
     void setNote(const QString& note);
 
-    //void updateDatabase();
-    //void upgradeRow();
-
 signals:
     void noteChanged(QString);
 
