@@ -90,9 +90,9 @@ Item {
                     anchors.centerIn: parent
                     font.pixelSize: 18
                     color: "white"
-                    text: timer.timerWorking ?
+                    text: timer.isTimerWorking ?
                               qsTr("Pause") :
-                              timer.sessionOngoing ?
+                              timer.isSessionOngoing ?
                               qsTr("Resume") :
                               qsTr("Start")
                 }
@@ -103,7 +103,7 @@ Item {
                     onEntered: { btnRectStart.color = "#272829" }
                     onExited: { btnRectStart.color = "#353637" }
                     onClicked: {
-                        if(timer.timerWorking){
+                        if(timer.isTimerWorking){
                             timer.pause();
                         } else {
                             timer.start();
