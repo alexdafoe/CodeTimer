@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Main.qml</file>
+        <file>qml/SettingsLayer.qml</file>
+        <file>qml/DialLayer.qml</file>
+        <file>qml/StatisticsLayer.qml</file>
+        <file>images/pause_icon.ico</file>
+        <file>images/start_noticed_icon.ico</file>
+        <file>images/start_standart_icon.ico</file>
+        <file>images/stop_icon.ico</file>
+        <file>images/main_icon.ico</file>
+        <file>qml/ModelView.qml</file>
+        <file>qml/StatisticsMenuItem.qml</file>
+        <file>qml/StatisticsMenuAnimation.qml</file>
+        <file>qml/CombineDate.qml</file>
+        <file>qml/SearchDate.qml</file>
+        <file>qml/SearchNote.qml</file>
+        <file>qml/NavigationLayer.qml</file>
+    </qresource>
+</RCC>

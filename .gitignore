@@ -4,9 +4,6 @@ bin/
 img_source/
 test/
 
-# Qt temp files
-.pro.user.
-
 # Prerequisites
 *.d
 

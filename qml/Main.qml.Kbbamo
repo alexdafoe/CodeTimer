@@ -1,0 +1,126 @@
+import QtQuick 2.0
+import QtQuick.Controls 1.4
+
+ApplicationWindow {
+    id: window
+    visible: true
+    width: 640
+    height: 340
+    minimumWidth: 640
+    minimumHeight: 340
+
+    property bool isSettingsShow: false
+    property bool isStatisticsShow: false
+
+    Connections {
+        target: sysTray
+        onSignalShow: {
+            window.show()
+        }
+        onSignalQuit:{
+            sysTray.hideIconTray();
+            Qt.quit();
+        }
+        onSignalIconActivated: {
+            window.visible ? window.hide() : window.show();
+        }
+    }
+    onClosing: {
+        window.hide();
+    }
+
+    Rectangle {
+        id: topLine
+        height: 5
+        color: timer.timerWorking ? "red" : "brown"
+        anchors.top: parent.top
+        anchors.topMargin: 10
+        anchors.left: parent.left
+        anchors.leftMargin: 0
+        anchors.right: parent.right
+        anchors.rightMargin: 0
+    }
+
+    Item {
+        id: timeLeftItem
+        height: 20
+        anchors.top: topLine.bottom
+        anchors.topMargin: 5
+        anchors.left: parent.left
+        anchors.leftMargin: 0
+        anchors.right: parent.right
+        anchors.rightMargin: 0
+        visible: timer.sessionOngoing
+
+        Text {
+            id: timeStartTxt
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: 10
+            font.pixelSize: 14
+            font.family: "Verdana"
+            text: "Start time: " + timer.timeStartStr
+        }
+
+        Text {
+            id: timeLeftTxt
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            font.pixelSize: 14
+            font.family: "Verdana"
+            text: timer.timeWritingCodeStr + " left"
+        }
+        Connections {
+            target: timer
+            onTimeWritingCodeChanged: timeLeftTxt.text = timer.timeWritingCodeStr  + " left"
+            onTimeStartChanged: timeStartTxt.text = "Start time: " + timer.timeStartStr
+        }
+    }
+    Item {
+        id: dialLayer
+        anchors.right: parent.right
+        anchors.rightMargin: 0
+        anchors.left: parent.left
+        anchors.leftMargin: 0
+        anchors.top: timeLeftItem.bottom
+        anchors.topMargin: 0
+        anchors.bottom: bottomLine.top
+        anchors.bottomMargin: 15
+
+
+    }
+
+    Rectangle {
+        id: bottomLine
+        height: 3
+        color: topLine.color
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 10
+        anchors.left: parent.left
+        anchors.leftMargin: 0
+        anchors.right: parent.right
+        anchors.rightMargin: 0
+
+    }
+
+     SettingsLayer {
+        id: settingsLayer
+        anchors.fill: dialLayer
+        visible: isSettingsShow === true
+
+    }
+
+     StatisticsLayer {
+         id: statisticsLayer
+         anchors.right: parent.right
+         anchors.rightMargin: 0
+         anchors.left: parent.left
+         anchors.leftMargin: 0
+         anchors.bottom: advanceButtons.top
+         anchors.bottomMargin: 0
+         anchors.top: timeLeftItem.bottom
+         anchors.topMargin: 0
+         visible: isStatisticsShow === true
+     }
+}
