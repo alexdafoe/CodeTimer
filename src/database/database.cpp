@@ -111,7 +111,7 @@ bool DataBase::uniteDateWithNote(const QDate &date, const QString &note) {
         sqlState = false;
 
     db.transaction();
-    while(sqlState){
+    while(sqlState){ // instead of enclosed "if"
         QSqlQuery queryUpd(db);
         sqlState = queryUpd.prepare("UPDATE " TABLE_NAME " SET "
                             _START_TIME " = :startSessionStr, "
@@ -278,13 +278,14 @@ QString DataBase::getStrQueryToBind(const QSqlQuery &query, QStringList &keys, Q
     QString queryStr = query.executedQuery();
     QMapIterator<QString, QVariant> it(query.boundValues());
     QStringList fields;
-    while(it.hasNext()) {
+    while(it.hasNext()) { // parse query by keys and values
         it.next();
         keys.append(it.key());
         values.append(it.value().toString());
     }
+    // cut out everything before 'where' stmt
     int pos = queryStr.indexOf("WHERE ");
-    if(pos >= 0){ // cut everything before 'where' stmt
+    if(pos >= 0){
         queryStr.remove(0, pos + 6);
         queryStr.remove(QChar(';'), Qt::CaseInsensitive);
     }
@@ -293,7 +294,7 @@ QString DataBase::getStrQueryToBind(const QSqlQuery &query, QStringList &keys, Q
 
     for(int i = 1; i <= values.count(); ++i){ // fill fields list
         QString str = strListFields.at(i-1);
-        if(i % 2 == 0) { // erase key
+        if(i % 2 == 0) { // erase 'key'
             int p = str.indexOf(' ');
             str.remove(0, p);
         }
@@ -324,6 +325,7 @@ int DataBase::getIdUpdateDate(const QDate &date, QVariantList &listOfKeys, QVect
     int writingCodeSecs = 0;
     int idUpd = -1;
     listOfKeys.clear();
+    // Reserve for list 6 field:
     // 0 - startSession, 1 - endSession, 2 - workTime, 3 - codeTime, 4 -workSec, 5 - codeSec
     listOfKeys.reserve(6);
     if(query.exec()){

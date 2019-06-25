@@ -21,15 +21,14 @@ void DataBaseController::closeDataBase() {
     }
 }
 
-bool DataBaseController::insertIntoTable(const QString &table, const TimerData *data) {
-    Q_UNUSED(table);
+bool DataBaseController::insertIntoTable(const TimerData *data) {
     if(_dataBase != nullptr){
         return _dataBase->insertIntoTable(data);
     }
     return false;
 }
 
-void DataBaseController::clearSelectedIdList() const {
+void DataBaseController::clearSelectedIdList() const noexcept {
     if(_dataModel != nullptr){
         _dataModel->clearSelectedIdList();
     }
@@ -55,7 +54,7 @@ bool DataBaseController::searchDateUsingIdList(const QDate &date) {
     return false;
 }
 
-void DataBaseController::getDirectoryPath(QString &path) {
+void DataBaseController::getDirectoryPath(QString &path) const noexcept{
     if(_controller != nullptr){
         _controller->getDirectoryPath(path);
     }

@@ -2,7 +2,20 @@
 # Folders
 bin/
 img_source/
+debug/
+release/
+x64/
+x32/
+.vs/
 test/
+
+# Qt config
+*.pro.*
+
+# MSVC files
+*.qmake.stash
+*.vcxproj*
+*.sln
 
 # Prerequisites
 *.d

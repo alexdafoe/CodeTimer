@@ -58,23 +58,23 @@ void DataBaseModel::updateModelWithLastQuery() {
 }
 
 QVariantList DataBaseModel::getDateNotesList(const QDate &date) {
-    QVariantList list;
-    list.clear();
+    QVariantList listOfNote;
+    listOfNote.clear();
     int rowsCount = 0;
     searchDate(date);
     if(this->query().exec()){
         QString str;
-        while(this->query().next()){
+        while(this->query().next()){ // count num of rows
             ++rowsCount;
             str = this->query().value(_COMMENTS).toString();
-            if(!str.isEmpty() && !list.contains(str)){
-                list.append(str);
+            if(!str.isEmpty() && !listOfNote.contains(str)){ // fill list
+                listOfNote.append(str);
             }
         }
     }
-    setDateHasNote(!list.isEmpty());
+    setDateHasNote(!listOfNote.isEmpty());
     setDateRowsCount(rowsCount);
-    return list;
+    return listOfNote;
 }
 
 bool DataBaseModel::searchDate(const QDate &date) {
@@ -101,8 +101,8 @@ bool DataBaseModel::searchDate(const QDate &date) {
 }
 
 bool DataBaseModel::searchDateUsingIdList(const QDate &date) {
-    int listSize = _selectedIdList.count();
-    if(listSize == 0)
+    int idListSize = _selectedIdList.count();
+    if(idListSize == 0)
         return searchDate(date);
     QString queryStr = QString("SELECT id, " _DATE ", "
                                _START_TIME ", " _END_TIME ", "
@@ -112,16 +112,17 @@ bool DataBaseModel::searchDateUsingIdList(const QDate &date) {
                                " FROM " TABLE_NAME
                                " WHERE id IN (");
     QStringList keys;
+    // 1st key w/o comma ',' so add this manually
     keys.append(":sId");
-    queryStr.append(":sId"); // 1st key w/o comma ','
-
-    for(int i = 1; i < listSize; ++i){
+    queryStr.append(":sId");
+    // other add in cycle
+    for(int i = 1; i < idListSize; ++i){
         keys.append(QString(":sId%1").arg(i));
         queryStr.append(QString(", :sId%1").arg(i));
     }
     queryStr.append(");");
     QSqlQuery query;
-    if(query.prepare(queryStr)){
+    if(query.prepare(queryStr)){ // bind values
         for(int j = 0; j < keys.count(); ++j)
             query.bindValue(keys.at(j), _selectedIdList.at(j).toInt());
     } else {
@@ -141,7 +142,7 @@ void DataBaseModel::addSelectedIdToList(int id) {
         _selectedIdList.append(id);
 }
 
-void DataBaseModel::clearSelectedIdList() {
+void DataBaseModel::clearSelectedIdList() noexcept{
     _selectedIdList.clear();
 }
 

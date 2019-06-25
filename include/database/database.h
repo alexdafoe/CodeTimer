@@ -5,6 +5,7 @@
 #include <QSql>
 #include <QSqlDatabase>
 
+// Define macro names
 #define DATABASE_NAME        "statistic.db"
 #define DATABASE_HOSTNAME "DataStat"
 #define TABLE_NAME              "dailystat"
@@ -17,7 +18,6 @@
 #define _WRITING_CODE_SECS "writing_code_sec"
 #define _COMMENTS               "comments"
 
-
 class DataBaseController;
 class TimerData;
 
@@ -25,35 +25,49 @@ class DataBase : public QObject
 {
     Q_OBJECT
 public:
+    // Constructor
     DataBase(QObject *parent, DataBaseController* dbController);
+    // Destructor
     virtual ~DataBase();
 
+    // Connection to database
     void connectToDataBase();
     void closeDataBase();
 
+    // The note for current session. Propagated to QML
     Q_PROPERTY(QString note READ getNote WRITE setNote NOTIFY noteChanged)
     QString getNote() const;
     void setNote(const QString& note);
+
+    // Query insert TimerData into table in database
+    bool insertIntoTable(const TimerData *data);
 
 signals:
     void noteChanged(QString);
 
 public slots:
-    bool insertIntoTable(const TimerData *data);
+    // Propagated to QML
 
+    // Query update note in row by id
     bool editNote(const int id, const QString& newNote);
+    // Query update row by date using note, if more than 1 rows - unite them
     bool uniteDateWithNote(const QDate &date, const QString& note);
+    // Query delete row by id
     bool removeRecordById(const int id);
+    // Query delete all rows
     bool removeAllRecords();
-
+    // Returns note by id
     QString getNoteById(const int id);
 
 private:
     bool openDataBase();
     bool restroreDataBase();
     bool createTable();
+    // Query delete all rows from last query
     bool removeRecordsFromLastQuery(const QSqlQuery& lastQuery);
+    // Returns last query in string and parse keys and values into list's
     QString getStrQueryToBind(const QSqlQuery& query, QStringList& keys, QStringList& values);
+    // Returns id for unite in 1 row and cache all values from rows that day
     int getIdUpdateDate(const QDate &date, QVariantList& listOfKeys, QVector<int>& trashId);
 
 private:

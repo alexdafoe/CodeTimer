@@ -43,7 +43,7 @@ void Controller::init() {
     }
     // init key event filter
     _eventFilter->setController(this);
-    _symbolsSettings->symbolListChanged(); // inform KeyEventFiler about symbols list
+    _symbolsSettings->symbolListChanged(); // load to KeyEventFiler symbols for tracking
 
     // init database
     _dataBaseController->connectToDataBase();
@@ -105,7 +105,7 @@ void Controller::sendControlKeyNoticed() {
 
 void Controller::sendRecordData(const TimerData *data) {
     if(_dataBaseController != nullptr){
-        _dataBaseController->insertIntoTable("", data);
+        _dataBaseController->insertIntoTable(data);
     }
 }
 
@@ -155,4 +155,3 @@ void Controller::sendStopTimer() {
         _timer->stop();
     }
 }
-

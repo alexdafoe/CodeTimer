@@ -32,7 +32,10 @@ QString Timer::getTimerStr() {
     auto realTime = now_sec - _lastActive;
     double time = _timeWritingCode.count();
     if(_isTimerWorking){
-        time += realTime.count()/SEC_DEVIDER; // by default (MinGW)= 1000000000, MSVC= 10000000
+        // SEC_DIVIDER is a compiler dependent variable
+        // calculation std::chrono::duration to seconds
+        // established in .pro file
+        time += realTime.count()/SEC_DIVIDER;
     }
     TimeSecToString()(int(time), _timerStr);
     return _timerStr;
