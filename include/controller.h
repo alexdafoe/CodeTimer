@@ -14,7 +14,7 @@ class Log;
 
 // This class is mediator between different classes
 // Provide access for QML layer
-// Transfers messages between timer and database
+// Transfers messages between Timer and database
 class Controller : public QObject
 {
     Q_OBJECT
@@ -50,7 +50,7 @@ public:
     void sendControlKeyNoticed();
     // Sends event insert TimerData to database
     void sendRecordData(const TimerData *data);
-    // Sends set action item in tray widget menu
+    // Sends set activate/deactivate item in tray widget menu
     void sendSetTrayMenuActionEnable(const QString &actionName, bool isEnable);
     // Sends set tray widget icon
     void sendSetTrayIcon(const QString &icon_name);

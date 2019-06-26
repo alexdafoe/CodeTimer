@@ -21,6 +21,8 @@
 class DataBaseController;
 class TimerData;
 
+// This class is a SQLite database manager
+// Provide necessary work operations with database
 class DataBase : public QObject
 {
     Q_OBJECT

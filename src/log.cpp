@@ -13,7 +13,8 @@ Log::Log(QObject *parent, Controller *controller) :
    _controller(controller),
    _logFileName("protocol.log")
 {
-    //qInstallMessageHandler(messageToFile);
+    // Install function as a message handler of all debug message
+    //qInstallMessageHandler(messageToFile); // comment row for print log in standart tab IDE
 }
 
 Log::~Log() {
@@ -73,7 +74,5 @@ void messageToFile(QtMsgType type, const QMessageLogContext &context, const QStr
     case QtFatalMsg:
         out << Log::_logTime.toString("yy.MM.dd hh:mm:ss") << " Fatal: " << msg << ", " << context.file << endl;
         std::abort();
-    //default:
-        //break;
     }
 }

@@ -4,21 +4,17 @@
 #include <QDebug>
 
 //Static variable
-HHOOK KeyEventFilter::keyHook = nullptr;
+HHOOK KeyEventFilter::_keyHook = nullptr;
 QList<unsigned long> KeyEventFilter::_symbolList = { };
 Controller* KeyEventFilter::_controller = nullptr;
 
 //Methods
-KeyEventFilter::KeyEventFilter()
-{
+KeyEventFilter::KeyEventFilter(Controller *controller) {
+    _controller = controller;
 }
 
 KeyEventFilter::~KeyEventFilter(){
     unhookWindowsHook();
-}
-
-void KeyEventFilter::setController(Controller *controller) {
-    _controller = controller;
 }
 
 void KeyEventFilter::setSymbolList(const QList<unsigned long> &list) {
@@ -29,13 +25,13 @@ void KeyEventFilter::setWindowsHook(){
     HMODULE hInstance = GetModuleHandle(nullptr);
     HHOOK hook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hInstance, 0);
     if(hook != nullptr){
-        keyHook = hook;
+        _keyHook = hook;
         qDebug() << "Key Hook: enabled";
     }
 }
 
 void KeyEventFilter::unhookWindowsHook() {
-    if(UnhookWindowsHookEx(keyHook))
+    if(UnhookWindowsHookEx(_keyHook))
         qDebug() << "Key Hook: disabled";
 }
 
@@ -49,5 +45,5 @@ LRESULT KeyEventFilter::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
             _controller->sendControlKeyNoticed();
         }
     }
-    return CallNextHookEx(keyHook, nCode, wParam, lParam);
+    return CallNextHookEx(_keyHook, nCode, wParam, lParam);
 }

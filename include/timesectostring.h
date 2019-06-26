@@ -3,8 +3,9 @@
 
 #include <QString>
 
-class TimeSecToString {
-
+// Convert time from seconds to string for clock and database
+class TimeSecToString
+{
 public:
     void operator()(const int &time, QString &str){
         str.clear();
@@ -25,14 +26,14 @@ public:
             timeFromSec[1]++; // increace minutes
             timeFromSec[2] -= 60; // dicreace seconds
         }
-        for(size_t i = 0; i < 3; ++i){
+        for(size_t i = 0; i < 3; ++i){ // create view like a "00:00:00"
             if(timeFromSec[i] < 10){
                 str.append(QString("0%1:").arg(timeFromSec[i]));
             } else {
                 str.append(QString("%1:").arg(timeFromSec[i]));
             }
         }
-        str.remove(str.length()-1, 1); // remove last double dots
+        str.remove(str.length()-1, 1); // remove last colon
     }
 
 };

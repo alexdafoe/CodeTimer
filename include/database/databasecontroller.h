@@ -50,7 +50,6 @@ public:
 
 public slots:
     void updateModel();
-    void removeAllRecords();
 
 private:
     QSharedPointer<DataBase> _dataBase;

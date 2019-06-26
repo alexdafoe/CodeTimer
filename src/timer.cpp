@@ -11,7 +11,7 @@ Timer::Timer(QObject *parent, Controller* controller):
     QObject(parent),
     _controller(controller)
 {
-    // refresh dial every 1 sec (main.qml onTimerTrigger)
+    // refresh clock every 1 sec (main.qml onTimerTrigger)
     _trigger.start(1000);
     QObject::connect(&_trigger, SIGNAL(timeout()), this, SIGNAL(timerTrigger()));
     _timeWritingCode = duration<double>(0);

@@ -5,6 +5,8 @@
 #include <QSqlQueryModel>
 #include <QSqlQuery>
 
+// This class is a database model view
+// Provide view from SQLite database to QML
 class DataBaseModel : public QSqlQueryModel
 {
     Q_OBJECT

@@ -29,7 +29,7 @@ void Controller::init() {
         _log->initLogFile(_appPath);
 
         _symbolsSettings = QSharedPointer<SymbolsSettings>(new SymbolsSettings(this, this));
-        _eventFilter = QSharedPointer<KeyEventFilter>(new KeyEventFilter());
+        _eventFilter = QSharedPointer<KeyEventFilter>(new KeyEventFilter(this));
         _dataBaseController = QSharedPointer<DataBaseController>(new DataBaseController(this, this));
         _timer = QSharedPointer<Timer>(new Timer(this, this));
         _trayIcon = QSharedPointer<TrayIconWidget>(new TrayIconWidget(this, this));
@@ -42,7 +42,6 @@ void Controller::init() {
         msg.exec();
     }
     // init key event filter
-    _eventFilter->setController(this);
     _symbolsSettings->symbolListChanged(); // load to KeyEventFiler symbols for tracking
 
     // init database

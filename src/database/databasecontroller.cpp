@@ -80,9 +80,3 @@ void DataBaseController::updateModel() {
         _dataModel->updateModel();
     }
 }
-
-void DataBaseController::removeAllRecords() {
-    if(_dataBase != nullptr){
-        _dataBase->removeAllRecords();
-    }
-}
