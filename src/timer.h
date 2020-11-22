@@ -7,6 +7,9 @@
 #include <ctime>
 #include <memory>
 
+namespace NS_Timer
+{
+
 class Controller;
 
 // This class is a main Timer
@@ -20,84 +23,86 @@ public:
 
 	// String that shows start counting of time. Propagated to QML
 	Q_PROPERTY(QString			timeStartStr
-						READ				getTimeStart
-						NOTIFY			timeStartChanged)
-	QString			getTimeStart()															const;
+						READ				TimeStart
+						NOTIFY			TimeStartChanged)
+	QString			TimeStart()															const;
 
 	// The main timer. Propagated to QML
 	Q_PROPERTY(QString			timerStr
-						READ				getTimerStr
+						READ				TimeStr
 						CONSTANT)
-	QString			getTimerStr();
+	QString			TimeStr();
 
 	// String that shows time of writing code counting by key symbols. Propagated to QML
 	Q_PROPERTY(QString			timeWritingCodeStr
-						READ				getTimeWritingCodeStr
+						READ				TimeWritingCodeStr
 						CONSTANT)
-	QString			getTimeWritingCodeStr();
+	QString			TimeWritingCodeStr();
 
 	// State of main timer. Propagated to QML
 	Q_PROPERTY(bool					isTimerWorking
-						READ				isTimerWorking
-						WRITE			setTimerWorking
-						NOTIFY			timerWorkingChanged)
-	bool				isTimerWorking()														const noexcept;
-	void				setTimerWorking(bool trigger);
+						READ				IsTimerWorking
+						WRITE			TimerWorking
+						NOTIFY			TimerWorkingStateChanged)
+	bool				IsTimerWorking()														const noexcept;
+	void				TimerWorking(bool trigger);
 
 	// State of main timer for correct shows labels in QML layers. Not change on pause. Propagated to QML
-	Q_PROPERTY(bool					isSessionOngoing
-						READ				isSessionOngoing
-						WRITE			setSessionOngoing
-						NOTIFY			timeStartStatusChanged)
-	bool				isSessionOngoing()													const noexcept;
-	void				setSessionOngoing(bool state);
+	Q_PROPERTY(bool					isSessionOngoing_
+						READ				IsSessionOngoing
+						WRITE			SessionOngoing
+						NOTIFY			TimeStartStatusChanged)
+	bool				IsSessionOngoing()													const noexcept;
+	void				SessionOngoing(bool state);
 
 	// Maximum seconds between key symbols detection events
-	Q_PROPERTY(unsigned int		maxSecPauseDuration
-						READ				getMaxSecPauseDuration
-						WRITE			setMaxSecPauseDuration
-						NOTIFY			maxSecPauseDurationChanged)
-	unsigned int	getMaxSecPauseDuration()											const noexcept;
-	void				setMaxSecPauseDuration(unsigned int durationSec);
+	Q_PROPERTY(unsigned int		maxPauseDurationSec_
+						READ				MaxPauseDurationSec
+						WRITE			MaxPauseDurationSec
+						NOTIFY			MaxPauseDurationSecChanged)
+	unsigned int	MaxPauseDurationSec()											const noexcept;
+	void				MaxPauseDurationSec(unsigned int durationSec);
 
 	// Event from KeyEventFilter that special key detected. Count time of writing code
-	void				setTimePoint();
+	void				SetTimePoint();
 	// Prepare "working time" for record in TimerData
-	void				countWorkingTime();
+	void				CountWorkingTime();
 
 public slots:
 	// Propagated to QML
-	void				start();
-	void				pause();
-	void				stop();
+	void				Start();
+	void				Pause();
+	void				Stop();
 
 signals:
-	void				timerTrigger();
-	void				maxSecPauseDurationChanged(unsigned int);
-	void				timerWorkingChanged(bool);
-	void				timeWritingCodeChanged();
-	void				timeStartStatusChanged();
-	void				timeStartChanged();
+	void				TimerTrigger();
+	void				MaxPauseDurationSecChanged(unsigned int);
+	void				TimerWorkingStateChanged(bool);
+	void				TimeWritingCodeChanged();
+	void				TimeStartStatusChanged();
+	void				TimeStartChanged();
 
 protected:
-	void fillTimerData();
-	void recordTimerData();
+	void				FillTimerData();
+	void				RecordTimerData();
 
 private:
-	using TimeSystemClock	= std::chrono::time_point<std::chrono::system_clock>;
+	using TimePoint	= std::chrono::time_point<std::chrono::system_clock>;
 	using TimeDuration		= std::chrono::duration<double>;
 
-	Controller*							_controller;
-	TimeSystemClock					_lastActive;
-	TimeSystemClock					_startWork;
-	TimeDuration						_timeWritingCode;
-	TimeDuration						_timeWorking;
-	std::unique_ptr<TimerData>	_timerData;
-	unsigned int						_maxSecPauseDuration	= 300; // 5 min
-	bool									_buttonPausePressed	= false;
-	bool									_isTimerWorking			= false;
-	bool									_isSessionOngoing		= false;
-	QTimer								_trigger; // call signal timerTrigger every 1 sec for refresh clock in QML layer
-	QString								_timerStr					= "0";
-	QString								_timeLeftStr;
+	Controller*							controller_;
+	TimePoint							lastActive_;
+	TimePoint							startWork_;
+	TimeDuration						durationWritingCode_;
+	TimeDuration						durationTimeWorking_;
+	TimerData							timerData_;
+	unsigned int						maxPauseDurationSec_	= 300; // 5 min
+	bool									buttonPausePressed_	= false;
+	bool									isTimerWorking_			= false;
+	bool									isSessionOngoing_		= false;
+	QTimer								trigger_; // call signal timerTrigger every 1 sec for refresh clock in QML layer
+	QString								timerStr_					= "0";
+	QString								timeLeftStr_;
 };
+
+}//namespace NS_Timer

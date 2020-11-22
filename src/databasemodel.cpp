@@ -3,43 +3,46 @@
 #include <QDate>
 #include <QDebug>
 
-DataBaseModel::DataBaseModel(QObject *parent) :
-	QSqlQueryModel(parent)
-{   }
+namespace NS_Timer
+{
 
-bool DataBaseModel::isDateHasNote() const {
-	return _dateHasNote;
+DataBaseModel::DataBaseModel(QObject* _parent)
+: QSqlQueryModel(_parent)
+{}
+
+bool DataBaseModel::IsDateHasNote() const {
+	return dateHasNote_;
 }
 
-void DataBaseModel::setDateHasNote(bool state) {
-	if(_dateHasNote != state){
-		_dateHasNote = state;
-		emit dateHasNoteChanged(state);
+void DataBaseModel::DateHasNote(bool _state) {
+	if(dateHasNote_ != _state){
+		dateHasNote_ = _state;
+		emit DateHasNoteChanged(_state);
 	}
 }
 
-int DataBaseModel::getDateRowsCount() const {
-	return _dateRowsCount;
+int DataBaseModel::DateRowsCount() const {
+	return dateRowsCount_;
 }
 
-void DataBaseModel::setDateRowsCount(int count) {
-	if(count >= 0){
-		_dateRowsCount = count;
-		emit dateRowsCountChanged(count);
+void DataBaseModel::DateRowsCount(int _count) {
+	if(_count >= 0){
+		dateRowsCount_ = _count;
+		emit DateRowsCountChanged(_count);
 	}
 }
 
-QVariant DataBaseModel::data(const QModelIndex &item, int role) const {
-	int columnId = role - Qt::UserRole -1;
-	QModelIndex modelIndex = this->index(item.row(), columnId);
+QVariant DataBaseModel::Data(const QModelIndex& _item, int _role) const {
+	int columnId = _role - Qt::UserRole -1;
+	QModelIndex modelIndex = this->index(_item.row(), columnId);
 	return QSqlQueryModel::data(modelIndex, Qt::DisplayRole);
 }
 
-QSqlQuery DataBaseModel::getCurrentQueryModel() const {
+QSqlQuery DataBaseModel::CurrentQuery() const {
 	return this->query();
 }
 
-void DataBaseModel::updateModel() {
+void DataBaseModel::UpdateModel() {
 	QSqlQuery query;
 	if(query.exec("SELECT * FROM " TABLE_NAME ";")){
 		this->setQuery(query);
@@ -48,7 +51,7 @@ void DataBaseModel::updateModel() {
 	}
 }
 
-void DataBaseModel::updateModelWithLastQuery() {
+void DataBaseModel::UpdateModelWithLastQuery() {
 	QSqlQuery query = this->query();
 	if(query.exec()){
 		this->setQuery(query);
@@ -57,11 +60,11 @@ void DataBaseModel::updateModelWithLastQuery() {
 	}
 }
 
-QVariantList DataBaseModel::getDateNotesList(const QDate &date) {
+QVariantList DataBaseModel::NoteByDate(const QDate& _date) {
 	QVariantList listOfNote;
 	listOfNote.clear();
 	int rowsCount = 0;
-	searchDate(date);
+	SearchDate(_date);
 	if(this->query().exec()){
 		QString str;
 		while(this->query().next()){ // count num of rows
@@ -72,13 +75,13 @@ QVariantList DataBaseModel::getDateNotesList(const QDate &date) {
 			}
 		}
 	}
-	setDateHasNote(!listOfNote.isEmpty());
-	setDateRowsCount(rowsCount);
+	DateHasNote(!listOfNote.isEmpty());
+	DateRowsCount(rowsCount);
 	return listOfNote;
 }
 
-bool DataBaseModel::searchDate(const QDate &date) {
-	qDebug() << "Try to find Date:" << date.toString("yyyy-MM-dd");
+bool DataBaseModel::SearchDate(const QDate& _date) {
+	qDebug() << "Try to find Date:" << _date.toString("yyyy-MM-dd");
 	QSqlQuery query;
 	if(query.prepare("SELECT id, " _DATE ", "
 				  _START_TIME ", " _END_TIME ", "
@@ -87,7 +90,7 @@ bool DataBaseModel::searchDate(const QDate &date) {
 				  _COMMENTS
 				  " FROM " TABLE_NAME
 				  " WHERE " _DATE " = :searchDate;")){
-		query.bindValue(":searchDate", date);
+		query.bindValue(":searchDate", _date);
 	} else {
 		qDebug() << "SQL Prepare failed: search date";
 		return false;
@@ -100,10 +103,10 @@ bool DataBaseModel::searchDate(const QDate &date) {
 	return true;
 }
 
-bool DataBaseModel::searchDateUsingIdList(const QDate &date) {
-	int idListSize = _selectedIdList.count();
+bool DataBaseModel::SearchDateWithIdList(const QDate& _date) {
+	int idListSize = selectedIdList_.count();
 	if(idListSize == 0)
-		return searchDate(date);
+		return SearchDate(_date);
 	QString queryStr = QString("SELECT id, " _DATE ", "
 							   _START_TIME ", " _END_TIME ", "
 							   _WORK_TIME ", " _WRITING_CODE_TIME ", "
@@ -124,7 +127,7 @@ bool DataBaseModel::searchDateUsingIdList(const QDate &date) {
 	QSqlQuery query;
 	if(query.prepare(queryStr)){ // bind values
 		for(int j = 0; j < keys.count(); ++j)
-			query.bindValue(keys.at(j), _selectedIdList.at(j).toInt());
+			query.bindValue(keys.at(j), selectedIdList_.at(j).toInt());
 	} else {
 		qDebug() << "SQL Prepare failed: search date using ID list";
 		return false;
@@ -137,22 +140,22 @@ bool DataBaseModel::searchDateUsingIdList(const QDate &date) {
 	return true;
 }
 
-void DataBaseModel::addSelectedIdToList(int id) {
-	if(!_selectedIdList.contains(id))
-		_selectedIdList.append(id);
+void DataBaseModel::AddSelectedId(int _id) {
+	if(!selectedIdList_.contains(_id))
+		selectedIdList_.append(_id);
 }
 
-void DataBaseModel::clearSelectedIdList() noexcept{
-	_selectedIdList.clear();
+void DataBaseModel::ClearIdList() noexcept{
+	selectedIdList_.clear();
 }
 
-void DataBaseModel::getSelectedIdList(QVariantList &idList) const {
-	idList = _selectedIdList;
+void DataBaseModel::GetIdList(QVariantList& _idList) const {
+	_idList = selectedIdList_;
 }
 
-void DataBaseModel::searchPeriod(const QDate &dateFrom, const QDate &dateTo){
-	qDebug() << "Try to find Preriod from:" << dateFrom.toString("yyyy-MM-dd") << "\tto:"<< dateTo.toString("yyyy-MM-dd");
-	if(dateFrom > dateTo){
+void DataBaseModel::SearchPeriod(const QDate& _fromDate, const QDate& _toDate){
+	qDebug() << "Try to find Preriod from:" << _fromDate.toString("yyyy-MM-dd") << "\tto:"<< _toDate.toString("yyyy-MM-dd");
+	if(_fromDate > _toDate){
 		qDebug() << "incorrect date range";
 		return;
 	}
@@ -164,8 +167,8 @@ void DataBaseModel::searchPeriod(const QDate &dateFrom, const QDate &dateTo){
 					 _COMMENTS
 					 " FROM " TABLE_NAME
 				  " WHERE " _DATE " >= :dateFrom AND " _DATE " <= :dateTo")){
-		query.bindValue(":dateFrom", dateFrom);
-		query.bindValue(":dateTo", dateTo);
+		query.bindValue(":dateFrom", _fromDate);
+		query.bindValue(":dateTo", _toDate);
 	} else {
 		qDebug() << "SQL Prepare failed: search period";
 		return;
@@ -177,11 +180,11 @@ void DataBaseModel::searchPeriod(const QDate &dateFrom, const QDate &dateTo){
 	this->setQuery(query);
 }
 
-void DataBaseModel::searhNote(QString note, bool similarBeginning){
-	qDebug() << "Try to find note: " << note;
+void DataBaseModel::SearhNote(QString _note, bool _similarBeginning){
+	qDebug() << "Try to find note: " << _note;
 	QString equal("=");
-	if(similarBeginning) {
-		note.append('%');
+	if(_similarBeginning) {
+		_note.append('%');
 		equal = "LIKE";
 	}
 	QString queryStr  = QString("SELECT id, " _DATE ", "
@@ -193,7 +196,7 @@ void DataBaseModel::searhNote(QString note, bool similarBeginning){
 								" WHERE " _COMMENTS " %1 :note;").arg(equal);
 	QSqlQuery query;
 	if(query.prepare(queryStr)){
-		query.bindValue(":note", note);
+		query.bindValue(":note", _note);
 	} else {
 		qDebug() << "SQL Prepare failed: search note";
 		return;
@@ -205,11 +208,11 @@ void DataBaseModel::searhNote(QString note, bool similarBeginning){
 	this->setQuery(query);
 }
 
-int DataBaseModel::getID(int row) {
-	return this->data(this->index(row, 0), IdRole).toInt();
+int DataBaseModel::GetIdByRowId(int _row) {
+	return this->Data(this->index(_row, 0), IdRole).toInt();
 }
 
-QHash<int, QByteArray> DataBaseModel::roleNames() const {
+QHash<int, QByteArray> DataBaseModel::RoleNames() const {
 	QHash<int, QByteArray> roles;
 	roles[IdRole] = "id";
 	roles[DateRole] = "date";
@@ -222,3 +225,5 @@ QHash<int, QByteArray> DataBaseModel::roleNames() const {
 	roles[CommentsRole] = "comments";
 	return roles;
 }
+
+}//namespace NS_Timer

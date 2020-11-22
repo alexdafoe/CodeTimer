@@ -1,38 +1,41 @@
 #include "controller.h"
-#include "symbolssettings.h"
-#include "timer.h"
-#include "keyeventfilter.h"
-#include "trayiconwidget.h"
-#include "databasecontroller.h"
 #include "log.h"
+#include "symbolssettings.h"
+#include "keyeventfilter.h"
+#include "databasecontroller.h"
+#include "timer.h"
+#include "trayiconwidget.h"
 
 #include <QDir>
 #include <QStandardPaths>
 #include <QMessageBox>
 #include <QDebug>
 
-Controller::Controller(QObject *parent) :
-	QObject(parent)
-{ }
+namespace NS_Timer
+{
+
+Controller::Controller(QObject* _parent)
+: QObject(_parent)
+{}
 
 Controller::~Controller() {
 	qDebug() << "shutdown application";
 }
 
-void Controller::init() {
-	_appPath = QString(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/CodeTimer/");
+void Controller::Init() {
+	appPath_ = QString(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/CodeTimer/");
 	QDir dir;
-	if(!dir.exists(_appPath))
-		dir.mkpath(_appPath);
+	if(!dir.exists(appPath_))
+		dir.mkpath(appPath_);
 	try {
-		_log = QSharedPointer<Log>(new Log(this, this));
-		_log->init(_appPath);
+		logContext_					= std::make_shared<NS_Timer::LogContext>(new NS_Timer::LogContext(this, this));
+		logContext_->Init(appPath_);
 
-		_symbolsSettings = QSharedPointer<SymbolsSettings>(new SymbolsSettings(this, this));
-		_eventFilter = QSharedPointer<KeyEventFilter>(new KeyEventFilter(this));
-		_dataBaseController = QSharedPointer<DataBaseController>(new DataBaseController(this, this));
-		_timer = QSharedPointer<Timer>(new Timer(this, this));
-		_trayIcon = QSharedPointer<TrayIconWidget>(new TrayIconWidget(this, this));
+		symbolsSettings_			= std::make_shared<NS_Timer::SymbolsSettings>(new NS_Timer::SymbolsSettings(this, this));
+		eventFilter_					= std::make_shared<KeyEventFilter>(new KeyEventFilter(this));
+		dbController_				= std::make_shared<DataBaseController>(new DataBaseController(this, this));
+		timer_						= std::make_shared<NS_Timer::Timer>(new NS_Timer::Timer(this, this));
+		trayIcon_					= std::make_shared<TrayIconWidget>(new TrayIconWidget(this, this));
 	} catch (std::exception ex) {
 		qWarning() << ex.what();
 		QMessageBox msg;
@@ -42,115 +45,123 @@ void Controller::init() {
 		msg.exec();
 	}
 	// init key event filter
-	_symbolsSettings->symbolListChanged(); // load to KeyEventFiler symbols for tracking
+	symbolsSettings_->SymbolListChanged(); // load to KeyEventFiler symbols for tracking
 
 	// init database
-	_dataBaseController->connectToDataBase();
-	_dataBaseController->updateModel();
+	dbController_->ConnectToDB();
+	dbController_->UpdateModel();
 }
 
-SymbolsSettings *Controller::getSymbolsSettings() const {
-	return this->_symbolsSettings.data();
+LogContext& Controller::LogContext() const
+{
+	return (NS_Timer::LogContext&)*logContext_;
 }
 
-Timer *Controller::getTimer() const {
-	return this->_timer.data();
+SymbolsSettings& Controller::SymbolsSettings() const
+{
+	return (NS_Timer::SymbolsSettings&)*symbolsSettings_;
 }
 
-TrayIconWidget *Controller::getSysTrayWidget() const {
-	return this->_trayIcon.data();
+KeyEventFilter& Controller::EventFilter() const
+{
+	return (KeyEventFilter&)*eventFilter_;
 }
 
-DataBaseController *Controller::getDataBaseController() const {
-	return _dataBaseController.data();
+DataBaseController& Controller::DatabaseController() const
+{
+	return (DataBaseController&)*dbController_;
 }
 
-Log *Controller::getLog() const {
-	return _log.data();
+Timer& Controller::Timer() const
+{
+	return (NS_Timer::Timer&)*timer_;
 }
 
-KeyEventFilter *Controller::getEventFilter() const {
-	return _eventFilter.data();
+TrayIconWidget& Controller::SysTrayWidget() const
+{
+	return (TrayIconWidget&)*trayIcon_;
 }
 
-void Controller::getTrackingSymbolsList(QList<unsigned long>& list) const {
-	if(_symbolsSettings != nullptr){
-		_symbolsSettings->getTrackingSymbolsList(list);
+void Controller::GetTrackingSymbolsList(QList<unsigned long>& _list) const {
+	if(symbolsSettings_ != nullptr){
+		symbolsSettings_->GetTrackingSymbolsList(_list);
 	}
 }
 
-void Controller::getDirectoryPath(QString &path) const noexcept{
-	if(!_appPath.isEmpty()){
-		path = _appPath;
+void Controller::GetDirectoryPath(QString& _path) const noexcept{
+	if(!appPath_.isEmpty()){
+		_path = appPath_;
 	}
 }
 
-void Controller::sendSetSymbolListIntoFilter(const QList<unsigned long> &list) const{
-	if(_eventFilter != nullptr){
-		_eventFilter->setTrackingSymbolList(list);
+void Controller::SendSetSymbolListIntoFilter(const QList<unsigned long>& _list) const{
+	if(eventFilter_ != nullptr){
+		eventFilter_->SetTrackingSymbolList(_list);
 	}
 }
 
-void Controller::sendControlKeyDetected() {
-	if(_timer != nullptr
-			&& _trayIcon != nullptr){
-		_timer->setTimePoint();
-		_trayIcon->setTrayIcon("start_noticed");
+void Controller::SendControlKeyDetected() {
+	if(timer_ != nullptr
+			&& trayIcon_ != nullptr){
+		timer_->SetTimePoint();
+		trayIcon_->SetTrayIcon("start_noticed");
 		QTimer::singleShot(200, this, [this]{
-									_trayIcon->setTrayIcon("start_standart");
+									trayIcon_->SetTrayIcon("start_standart");
 		});
 	}
 }
 
-void Controller::sendRecordData(const TimerData *data) {
-	if(_dataBaseController != nullptr){
-		_dataBaseController->insertIntoTable(data);
+void Controller::SendRecordData(const TimerData& _data) {
+	if(dbController_ != nullptr){
+		dbController_->InsertIntoTable(_data);
 	}
 }
 
-void Controller::sendSetTrayMenuActionEnable(const QString &actionName, bool isEnable) {
-	if(_trayIcon != nullptr){
-		_trayIcon->setActionEnable(actionName, isEnable);
+void Controller::SendSetTrayMenuActionEnable(const QString& _actionName, bool _isEnable) {
+	if(trayIcon_ != nullptr){
+		trayIcon_->SetActionEnable(_actionName, _isEnable);
 	}
 }
 
-void Controller::sendSetTrayIcon(const QString &icon_name) {
-	if(_trayIcon != nullptr){
-		_trayIcon->setTrayIcon(icon_name);
+void Controller::SendSetTrayIcon(const QString& _iconName) {
+	if(trayIcon_ != nullptr){
+		trayIcon_->SetTrayIcon(_iconName);
 	}
 }
 
-bool Controller::isTimerWorking() const noexcept{
-	if(_timer != nullptr){
-		return _timer->isTimerWorking();
+bool Controller::IsTimerWorking() const noexcept{
+	if(timer_ != nullptr){
+		return timer_->IsTimerWorking();
 	}
 	return false;
 }
 
-void Controller::sendSetWindowsHook() const {
-	if(_eventFilter != nullptr)
-		_eventFilter->setWindowsHook();
+void Controller::SendSetWindowsHook() const {
+	if(eventFilter_ != nullptr)
+		eventFilter_->SetWindowsHook();
 }
 
-void Controller::sendUnhookWindowsHook() const {
-	if(_eventFilter != nullptr)
-		_eventFilter->unhookWindowsHook();
+void Controller::SendUnhookWindowsHook() const {
+	if(eventFilter_ != nullptr)
+		eventFilter_->UnhookWindowsHook();
 }
 
-void Controller::sendStartTimer(){
-	if(_timer != nullptr){
-		_timer->start();
+void Controller::SendStartTimer(){
+	if(timer_ != nullptr){
+		timer_->Start();
 	}
 }
 
-void Controller::sendPauseTimer() {
-	if(_timer != nullptr){
-		_timer->pause();
+void Controller::SendPauseTimer() {
+	if(timer_ != nullptr){
+		timer_->Pause();
 	}
 }
 
-void Controller::sendStopTimer() {
-	if(_timer != nullptr){
-		_timer->stop();
+void Controller::SsendStopTimer() {
+	if(timer_ != nullptr){
+		timer_->Stop();
 	}
 }
+
+}//namespace NS_Timer

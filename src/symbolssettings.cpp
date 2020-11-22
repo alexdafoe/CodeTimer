@@ -3,166 +3,171 @@
 #include <windows.h>
 #include <QDebug>
 
-SymbolsSettings::SymbolsSettings(QObject *parent, Controller *controller):
-	QObject(parent),
-	_controller(controller)
+namespace NS_Timer
+{
+
+SymbolsSettings::SymbolsSettings(QObject* _parent, Controller* _controller)
+: QObject(_parent)
+, 	controller_(_controller)
 {
 	// try to fill symbolList
-	setCurlyBracketList(curlyBracket);
-	setAngleBracketList(angleBracket);
-	setParenthesesList(parentheses);
-	setSemicolonList(semicolon);
-	setAsteriskList(asterisk);
-	setOctothorpeList(octothorpe);
+	UpdateStateListCurlyBracket(true);
+	UpdateStateListAngleBracket(true);
+	UpdateStateListParentheses(true);
+	UpdateStateListSemicolon(true);
+	UpdateStateListAsterisk(true);
+	UpdateStateListOctothorpe(true);
 }
 
-void SymbolsSettings::getTrackingSymbolsList(QList<unsigned long> &list) const{
-	list.clear();
-	list = _symbolList;
+void SymbolsSettings::GetTrackingSymbolsList(QList<unsigned long>& _list) const{
+	_list.clear();
+	_list = symbolsList_;
 }
 
-void SymbolsSettings::symbolListChanged() const {
-	if(_controller != nullptr)
-		_controller->sendSetSymbolListIntoFilter(_symbolList);
+void SymbolsSettings::SymbolListChanged() const {
+	if(controller_ != nullptr)
+		controller_->SendSetSymbolListIntoFilter(symbolsList_);
 }
 
-bool SymbolsSettings::getCurlyBracket() const noexcept {
-	return curlyBracket;
+bool SymbolsSettings::IsCurlyBracket() const noexcept {
+	return curlyBracket_;
 }
 
-void SymbolsSettings::setCurlyBracket(bool state) {
-	if(curlyBracket != state){
-		curlyBracket = state;
-		setCurlyBracketList(state);
-		qDebug() << "CurlyBracket registration: " << state;
-		emit curlyBracketChanged(state);
+void SymbolsSettings::CurlyBracket(bool _state) {
+	if(curlyBracket_ != _state){
+		curlyBracket_ = _state;
+		UpdateStateListCurlyBracket(_state);
+		qDebug() << "CurlyBracket registration: " << _state;
+		emit CurlyBracketStateChanged(_state);
 	}
 }
 
-bool SymbolsSettings::getAngleBracket() const noexcept {
-	return angleBracket;
+bool SymbolsSettings::IsAngleBracket() const noexcept {
+	return angleBracket_;
 }
 
-void SymbolsSettings::setAngleBracket(bool state) {
-	if(angleBracket != state){
-		angleBracket = state;
-		setAngleBracketList(state);
-		qDebug() << "Angle registration: " << state;
-		emit angleBracketChanged(state);
+void SymbolsSettings::AngleBracket(bool _state) {
+	if(angleBracket_ != _state){
+		angleBracket_ = _state;
+		UpdateStateListAngleBracket(_state);
+		qDebug() << "Angle registration: " << _state;
+		emit AngleBracketStateChanged(_state);
 	}
 }
 
-bool SymbolsSettings::getParentheses() const noexcept {
-	return parentheses;
+bool SymbolsSettings::IsParentheses() const noexcept {
+	return parentheses_;
 }
 
-void SymbolsSettings::setParentheses(bool state) {
-	if(parentheses != state){
-		parentheses = state;
-		setParenthesesList(state);
-		qDebug() << "Parentheses registration: " << state;
-		emit parenthesesChanged(state);
+void SymbolsSettings::Parentheses(bool _state) {
+	if(parentheses_ != _state){
+		parentheses_ = _state;
+		UpdateStateListParentheses(_state);
+		qDebug() << "Parentheses registration: " << _state;
+		emit ParenthesesStateChanged(_state);
 	}
 }
 
-bool SymbolsSettings::getSemicolon() const noexcept {
-	return semicolon;
+bool SymbolsSettings::IsSemicolon() const noexcept {
+	return semicolon_;
 }
 
-void SymbolsSettings::setSemicolon(bool state) {
-	if(semicolon != state){
-		semicolon = state;
-		setSemicolonList(state);
-		qDebug() << "Semicolon registration: " << state;
-		emit semicolonChanged(state);
+void SymbolsSettings::Semicolon(bool _state) {
+	if(semicolon_ != _state){
+		semicolon_ = _state;
+		UpdateStateListSemicolon(_state);
+		qDebug() << "Semicolon registration: " << _state;
+		emit SemicolonStateChanged(_state);
 	}
 }
 
-bool SymbolsSettings::getAsterisk() const noexcept {
-	return asterisk;
+bool SymbolsSettings::IsAsterisk() const noexcept {
+	return asterisk_;
 }
 
-void SymbolsSettings::setAsterisk(bool state) {
-	if(asterisk != state){
-		asterisk = state;
-		setAsteriskList(state);
-		qDebug() << "Asterisk registration: " << state;
-		emit asteriskChanged(state);
+void SymbolsSettings::Asterisk(bool _state) {
+	if(asterisk_ != _state){
+		asterisk_ = _state;
+		UpdateStateListAsterisk(_state);
+		qDebug() << "Asterisk registration: " << _state;
+		emit AsteriskStateChanged(_state);
 	}
 }
 
-bool SymbolsSettings::getOctothorpe() const noexcept {
-	return octothorpe;
+bool SymbolsSettings::IsOctothorpe() const noexcept {
+	return octothorpe_;
 }
 
-void SymbolsSettings::setOctothorpe(bool state) {
-	if(octothorpe != state){
-		octothorpe = state;
-		setOctothorpeList(state);
-		qDebug() << "Octothorpe registration: " << state;
-		emit octothorpeChanged(state);
+void SymbolsSettings::Octothorpe(bool _state) {
+	if(octothorpe_ != _state){
+		octothorpe_ = _state;
+		UpdateStateListOctothorpe(_state);
+		qDebug() << "Octothorpe registration: " << _state;
+		emit OctothorpeStateChanged(_state);
 	}
 }
 
 //Protected methods
-void SymbolsSettings::setCurlyBracketList(bool state) {
-	if(state){
-		_symbolList.append(VK_OEM_4); // [{
-		_symbolList.append(VK_OEM_6); // ]}
+void SymbolsSettings::UpdateStateListCurlyBracket(bool _state) {
+	if(_state){
+		symbolsList_.append(VK_OEM_4); // [{
+		symbolsList_.append(VK_OEM_6); // ]}
 	} else {
-		_symbolList.removeOne(VK_OEM_4);
-		_symbolList.removeOne(VK_OEM_6);
+		symbolsList_.removeOne(VK_OEM_4);
+		symbolsList_.removeOne(VK_OEM_6);
 	}
-	symbolListChanged();
+	SymbolListChanged();
 }
 
-void SymbolsSettings::setAngleBracketList(bool state) {
-	if(state){
-		_symbolList.append(VK_OEM_COMMA); // ,<
-		_symbolList.append(VK_OEM_PERIOD); // .>
+void SymbolsSettings::UpdateStateListAngleBracket(bool _state) {
+	if(_state){
+		symbolsList_.append(VK_OEM_COMMA); // ,<
+		symbolsList_.append(VK_OEM_PERIOD); // .>
 	} else {
-		_symbolList.removeOne(VK_OEM_COMMA);
-		_symbolList.removeOne(VK_OEM_PERIOD);
+		symbolsList_.removeOne(VK_OEM_COMMA);
+		symbolsList_.removeOne(VK_OEM_PERIOD);
 	}
-	symbolListChanged();
+	SymbolListChanged();
 }
 
-void SymbolsSettings::setParenthesesList(bool state) {
-	if(state){
-		_symbolList.append(0x39); // 9 (
-		_symbolList.append(0x30); // 0 )
+void SymbolsSettings::UpdateStateListParentheses(bool _state) {
+	if(_state){
+		symbolsList_.append(0x39); // 9 (
+		symbolsList_.append(0x30); // 0 )
 	} else {
-		_symbolList.removeOne(0x39);
-		_symbolList.removeOne(0x30);
+		symbolsList_.removeOne(0x39);
+		symbolsList_.removeOne(0x30);
 	}
-	symbolListChanged();
+	SymbolListChanged();
 }
 
-void SymbolsSettings::setSemicolonList(bool state) {
-	if(state){
-		_symbolList.append(VK_OEM_1); // ;:
+void SymbolsSettings::UpdateStateListSemicolon(bool _state) {
+	if(_state){
+		symbolsList_.append(VK_OEM_1); // ;:
 	} else {
-		_symbolList.removeOne(VK_OEM_1);
+		symbolsList_.removeOne(VK_OEM_1);
 	}
-	symbolListChanged();
+	SymbolListChanged();
 }
 
-void SymbolsSettings::setAsteriskList(bool state) {
-	if(state){
-		_symbolList.append(VK_MULTIPLY); // * (numpad)
-		_symbolList.append(0x38); // 8 * (main keyboard)
+void SymbolsSettings::UpdateStateListAsterisk(bool _state) {
+	if(_state){
+		symbolsList_.append(VK_MULTIPLY); // * (numpad)
+		symbolsList_.append(0x38); // 8 * (main keyboard)
 	} else {
-		_symbolList.removeOne(VK_MULTIPLY);
-		_symbolList.removeOne(0x38);
+		symbolsList_.removeOne(VK_MULTIPLY);
+		symbolsList_.removeOne(0x38);
 	}
-	symbolListChanged();
+	SymbolListChanged();
 }
 
-void SymbolsSettings::setOctothorpeList(bool state) {
-	if(state){
-		_symbolList.append(0x33); // 3 (#)
+void SymbolsSettings::UpdateStateListOctothorpe(bool _state) {
+	if(_state){
+		symbolsList_.append(0x33); // 3 (#)
 	} else {
-		_symbolList.removeOne(0x33);
+		symbolsList_.removeOne(0x33);
 	}
-	symbolListChanged();
+	SymbolListChanged();
 }
+
+}//namespace NS_Timer

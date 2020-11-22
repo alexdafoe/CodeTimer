@@ -1,6 +1,9 @@
 #pragma once
 #include <QObject>
 
+namespace NS_Timer
+{
+
 class Controller;
 
 // This class is a control which symbols are tracking
@@ -8,80 +11,82 @@ class SymbolsSettings : public QObject
 {
 	Q_OBJECT
 public:
-	SymbolsSettings(QObject *parent, Controller *controller);
+	SymbolsSettings(QObject* parent, Controller*);
 	virtual ~SymbolsSettings() = default;
-
-	void				getTrackingSymbolsList(QList<unsigned long> &list)		const;
+	//todo: init instead of UpdateList in Constructor
+	void				GetTrackingSymbolsList(QList<unsigned long>& list)		const;
 	// Event for settings tracking symbols to KeyEventFilter after someone state are changed
-	void				symbolListChanged() const;
+	void				SymbolListChanged() const;
 
 	// States for tracking symbols. Propagated to QML
-	Q_PROPERTY(bool			curlyBracket
-						READ		getCurlyBracket
-						WRITE	setCurlyBracket
-						NOTIFY	curlyBracketChanged) // [ ] { }
-	bool				getCurlyBracket()														const noexcept;
-	void				setCurlyBracket(bool state);
+	Q_PROPERTY(bool			curlyBracket_
+						READ		IsCurlyBracket
+						WRITE	CurlyBracket
+						NOTIFY	CurlyBracketStateChanged) // [ ] { }
+	bool				IsCurlyBracket()														const noexcept;
+	void				CurlyBracket(bool state);
 
-	Q_PROPERTY(bool			angleBracket
-						READ		getAngleBracket
-						WRITE	setAngleBracket
-						NOTIFY	angleBracketChanged) // < >
-	bool				getAngleBracket()													const noexcept;
-	void				setAngleBracket(bool state);
+	Q_PROPERTY(bool			angleBracket_
+						READ		IsAngleBracket
+						WRITE	AngleBracket
+						NOTIFY	AngleBracketStateChanged) // < >
+	bool				IsAngleBracket()													const noexcept;
+	void				AngleBracket(bool state);
 
-	Q_PROPERTY(bool			parentheses
-						READ		getParentheses
-						WRITE	setParentheses
-						NOTIFY	parenthesesChanged) // 9 0 ( )
-	bool				getParentheses()														const noexcept;
-	void				setParentheses(bool state);
+	Q_PROPERTY(bool			parentheses_
+						READ		IsParentheses
+						WRITE	IsParentheses
+						NOTIFY	ParenthesesStateChanged) // 9 0 ( )
+	bool				IsParentheses()														const noexcept;
+	void				Parentheses(bool state);
 
-	Q_PROPERTY(bool			semicolon
-						READ		getSemicolon
-						WRITE	setSemicolon
-						NOTIFY	semicolonChanged) // ; :
-	bool				getSemicolon()														const noexcept;
-	void				setSemicolon(bool state);
+	Q_PROPERTY(bool			semicolon_
+						READ		IsSemicolon
+						WRITE	Semicolon
+						NOTIFY	SemicolonStateChanged) // ; :
+	bool				IsSemicolon()														const noexcept;
+	void				Semicolon(bool state);
 
-	Q_PROPERTY(bool			asterisk
-						READ		getAsterisk
-						WRITE	setAsterisk
-						NOTIFY	asteriskChanged) // "*" (numpad) and "8 *"
-	bool				getAsterisk()															const noexcept;
-	void				setAsterisk(bool state);
+	Q_PROPERTY(bool			asterisk_
+						READ		IsAsterisk
+						WRITE	Asterisk
+						NOTIFY	AsteriskStateChanged) // "*" (numpad) and "8 *"
+	bool				IsAsterisk()															const noexcept;
+	void				Asterisk(bool state);
 
-	Q_PROPERTY(bool			octothorpe
-						READ		getOctothorpe
-						WRITE	setOctothorpe
-						NOTIFY	octothorpeChanged) // 3 #
-	bool				getOctothorpe()														const noexcept;
-	void				setOctothorpe(bool state);
+	Q_PROPERTY(bool			octothorpe_
+						READ		IsOctothorpe
+						WRITE	Octothorpe
+						NOTIFY	OctothorpeStateChanged) // 3 #
+	bool				IsOctothorpe()														const noexcept;
+	void				Octothorpe(bool state);
 
 signals:
-	void				curlyBracketChanged(bool);
-	void				angleBracketChanged(bool);
-	void				parenthesesChanged(bool);
-	void				semicolonChanged(bool);
-	void				asteriskChanged(bool);
-	void				octothorpeChanged(bool);
+	void				CurlyBracketStateChanged(bool);
+	void				AngleBracketStateChanged(bool);
+	void				ParenthesesStateChanged(bool);
+	void				SemicolonStateChanged(bool);
+	void				AsteriskStateChanged(bool);
+	void				OctothorpeStateChanged(bool);
 
 protected:
 	// Additional methods for add/erase key symbols to/from list
-	void				setCurlyBracketList(bool state);
-	void				setAngleBracketList(bool state);
-	void				setParenthesesList(bool state);
-	void				setSemicolonList(bool state);
-	void				setAsteriskList(bool state);
-	void				setOctothorpeList(bool state);
+	void				UpdateStateListCurlyBracket(bool state);
+	void				UpdateStateListAngleBracket(bool state);
+	void				UpdateStateListParentheses(bool state);
+	void				UpdateStateListSemicolon(bool state);
+	void				UpdateStateListAsterisk(bool state);
+	void				UpdateStateListOctothorpe(bool state);
 
 private:
-	Controller*					_controller;
-	bool							curlyBracket	= true;
-	bool							angleBracket	= true;
-	bool							parentheses	= true;
-	bool							semicolon		= true;
-	bool							asterisk			= true;
-	bool							octothorpe		= true;
-	QList<unsigned long>	_symbolList;
+	Controller*					controller_;
+	bool							curlyBracket_	= true;
+	bool							angleBracket_	= true;
+	bool							parentheses_	= true;
+	bool							semicolon_		= true;
+	bool							asterisk_			= true;
+	bool							octothorpe_		= true;
+	QList<unsigned long>	symbolsList_;
 };
+
+}//namespace NS_Timer

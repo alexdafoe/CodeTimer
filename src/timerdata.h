@@ -2,34 +2,41 @@
 #include "timesectostring.h"
 #include <QDateTime>
 
+namespace NS_Timer
+{
+
 // This class is a stores of all timer data in current session
 // Used for sends to database for record in table
 class TimerData
 {
 public:
-	explicit TimerData(QDateTime &&startDateTime = QDateTime::currentDateTime());
+	TimerData()																= default;
 	virtual ~TimerData()													= default;
 
 	TimerData&		operator=(const TimerData&)					= default;
 	TimerData&		operator=(TimerData&&)						= default;
 
+	void				Reset();
+
 	// Set data from timer
-	void				setWorkSeconds(int sec);
-	void				setWritingCodeSeconds(int sec);
-	void				setEndTime(const QTime& time);
+	void				WorkSeconds(uint32_t sec);
+	void				WritingCodeSeconds(uint32_t sec);
+	void				EndTime(const QTime&);
 
 	// Get data for the database
-	QDate			getDateStart()								const;
-	QString			getTimeStart()								const;
-	QString			getTimeEnd()								const;
-	QString			getTimeWork()								const;
-	QString			getTimeWritingCode()					const;
-	int					getSecondsWork()						const noexcept;
-	int					getSecondsWritingCode()				const noexcept;
+	QDate			DateStart()								const;
+	QString			TimeStart()								const;
+	QString			TimeEnd()								const;
+	QString			TimeWork()								const;
+	QString			TimeWritingCode()					const;
+	int					SecondsWork()						const noexcept;
+	int					SecondsWritingCode()				const noexcept;
 
 private:
-	int					_workSec				= 0;
-	int					_writingCodeSec		= 0;
-	QDateTime		_startDateTime;
-	QTime			_endTime;
+	int					workSec_				= 0;
+	int					writingCodeSec_		= 0;
+	QDateTime		startDateTime_;
+	QTime			endTime_;
 };
+
+}//namespace NS_Timer

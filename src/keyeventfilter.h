@@ -3,6 +3,9 @@
 #include <Windows.h>
 #include <WinUser.h>
 
+namespace NS_Timer
+{
+
 class Controller;
 
 // This class is event filter
@@ -10,7 +13,7 @@ class Controller;
 class KeyEventFilter
 {
 public:
-	KeyEventFilter(Controller *controller);
+	KeyEventFilter(Controller*);
 	KeyEventFilter(const KeyEventFilter&)										= delete;
 	KeyEventFilter(KeyEventFilter&&)											= delete;
 	virtual ~KeyEventFilter();
@@ -18,15 +21,17 @@ public:
 	KeyEventFilter&					operator=(const KeyEventFilter&)	= delete;
 	KeyEventFilter&					operator=(KeyEventFilter&&)			= delete;
 
-	void									setTrackingSymbolList(const QList<unsigned long> &list);
-	void									setWindowsHook();
-	void									unhookWindowsHook();
+	void									SetTrackingSymbolList(const QList<unsigned long>&);
+	void									SetWindowsHook();
+	void									UnhookWindowsHook();
 
 	//WH_KEYBOARD hook procedure
 	static LRESULT CALLBACK		KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 
 private:
-	static HHOOK						_keyHook;
-	static QList<unsigned long>	_symbolList;
-	static Controller*					_controller;
+	static HHOOK						keyHook_;
+	static QList<unsigned long>	symbolList_;
+	static Controller*					controller_;
 };
+
+}//namespace NS_Timer

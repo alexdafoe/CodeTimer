@@ -4,6 +4,9 @@
 #include <QSystemTrayIcon>
 #include <QSharedPointer>
 
+namespace NS_Timer
+{
+
 class Controller;
 
 // This class in a tray widged with menu to control timer
@@ -11,27 +14,29 @@ class TrayIconWidget : public QObject
 {
 	Q_OBJECT
 public:
-	TrayIconWidget(QObject *parent, Controller* controller);
+	TrayIconWidget(QObject* parent, Controller*);
 	virtual ~TrayIconWidget()							= default;
 
-	void				setActionEnable(const QString& actionName, bool isEnabled);
-	void				setTrayIcon(const QString &icon_name);
+	void				SetActionEnable(const QString& actionName, bool isEnabled);
+	void				SetTrayIcon(const QString& icon_name);
 
 signals:
-	void				signalIconActivated();
-	void				signalShow();
-	void				signalQuit();
+	void				SignalIconActivated();
+	void				SignalShow();
+	void				SignalQuit();
 
 private slots:
 	// Show/hide main app by double click on tray icon
-	void				iconActivated(QSystemTrayIcon::ActivationReason reason);
+	void				IconActivated(QSystemTrayIcon::ActivationReason reason);
 
 public slots:
 	// Hide main app in tray by click on close button app
-	void				hideIconTray();
+	void				HideIconTray();
 
 private:
-	QSharedPointer<QSystemTrayIcon>		_trayIcon;
-	QSharedPointer<QMenu>					_trayMenu;
-	Controller*										_controller;
+	QSharedPointer<QSystemTrayIcon>		trayIcon_;
+	QSharedPointer<QMenu>					trayMenu_;
+	Controller*										controller_;
 };
+
+}//namespace NS_Timer

@@ -5,6 +5,9 @@
 #include <QFile>
 #include <QDateTime>
 
+namespace NS_Timer
+{
+
 class Controller;
 
 // Message handler
@@ -13,30 +16,32 @@ void messageToFile(QtMsgType							type,
 						   const QString&						msg);
 
 // This class is a file manager for log
-class Log : public QObject
+class LogContext : public QObject
 {
 	Q_OBJECT
 public:
-	Log(QObject* parent, Controller* controller);
-	virtual ~Log();
+	LogContext(QObject* parent, Controller*);
+	virtual ~LogContext();
 
-	void						init(const QString &path);
+	void						Init(const QString& logPath);
 
 	// Full log file name. Propagated to QML
-	Q_PROPERTY(QString	logFileName
-						READ		getLogFileName
+	Q_PROPERTY(QString	logFileName_
+						READ		LogFileName
 						CONSTANT)
-	QString					getLogFileName()				const;
+	QString					LogFileName()				const;
 
 	// Public static variable for message handler
-	static QDateTime		_logTime;
-	static QFile				currentLogFile;
+	static QDateTime		logTime;
+	static QFile				logFile;
 
 public slots:
-	void						removeCurrentLogFile();
-	void						openLogFileFolder();
+	void						RemoveLogFile();
+	void						OpenLogPath();
 
 private:
-	Controller*				_controller;
-	QString					_logFileName;
+	Controller*				controller_;
+	QString					logFileName_;
 };
+
+}//namespace NS_Timer

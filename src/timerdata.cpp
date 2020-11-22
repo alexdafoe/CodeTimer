@@ -1,58 +1,63 @@
 #include "timerdata.h"
 
-TimerData::TimerData(QDateTime &&startDateTime) {
-	if(startDateTime.isValid()){
-		_startDateTime = startDateTime;
-		_endTime = startDateTime.time();
-	}
+namespace NS_Timer
+{
+
+void TimerData::Reset()
+{
+	workSec_				= 0;
+	writingCodeSec_		= 0;
+	startDateTime_		= QDateTime::currentDateTime();
+	endTime_				= startDateTime_.time();
 }
 
-void TimerData::setWorkSeconds(int sec){
-	if(sec > 0)
-		_workSec = sec;
+void TimerData::WorkSeconds(uint32_t _sec) {
+	if (_sec > 0)
+		workSec_ = _sec;
 }
 
-void TimerData::setWritingCodeSeconds(int sec) {
-	if(sec > 0)
-		_writingCodeSec = sec;
+void TimerData::WritingCodeSeconds(uint32_t _sec) {
+	if(_sec > 0)
+		writingCodeSec_ = _sec;
 }
 
-void TimerData::setEndTime(const QTime &time) {
-	if(time > _endTime && time.isValid())
-		_endTime = time;
+void TimerData::EndTime(const QTime& _time) {
+	if(_time > endTime_ && _time.isValid())
+		endTime_ = _time;
 }
 
-QDate TimerData::getDateStart() const {
-	return _startDateTime.date();
+QDate TimerData::DateStart() const {
+	return startDateTime_.date();
 }
 
-QString TimerData::getTimeStart() const {
-	return _startDateTime.time().toString("hh:mm:ss");
+QString TimerData::TimeStart() const {
+	return startDateTime_.time().toString("hh:mm:ss");
 }
 
-QString TimerData::getTimeEnd() const {
-	return _endTime.toString("hh:mm:ss");
+QString TimerData::TimeEnd() const {
+	return endTime_.toString("hh:mm:ss");
 }
 
-QString TimerData::getTimeWork() const {
+QString TimerData::TimeWork() const {
 	QString workTimeStr{"00:00:00"};
-	if(_workSec > 0)
-		TimeSecToString()(_workSec, workTimeStr);
+	if(workSec_ > 0)
+		TimeSecToString()(workSec_, workTimeStr);
 	return workTimeStr;
 }
 
-QString TimerData::getTimeWritingCode() const {
+QString TimerData::TimeWritingCode() const {
 	QString writingCodeTimeStr{"00:00:00"};
-	if(_writingCodeSec > 0)
-		TimeSecToString()(_writingCodeSec, writingCodeTimeStr);
+	if(writingCodeSec_ > 0)
+		TimeSecToString()(writingCodeSec_, writingCodeTimeStr);
 	return writingCodeTimeStr;
 }
 
-int TimerData::getSecondsWork() const noexcept{
-	return _workSec;
+int TimerData::SecondsWork() const noexcept{
+	return workSec_;
 }
 
-int TimerData::getSecondsWritingCode() const noexcept{
-	return  _writingCodeSec;
+int TimerData::SecondsWritingCode() const noexcept{
+	return  writingCodeSec_;
 }
 
+}//namespace NS_Timer

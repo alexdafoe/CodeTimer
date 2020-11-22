@@ -1,7 +1,10 @@
 #pragma once
 #include <QObject>
-#include <QSharedPointer>
 #include <QSqlQuery>
+#include <memory>
+
+namespace NS_Timer
+{
 
 class DataBase;
 class DataBaseModel;
@@ -14,37 +17,38 @@ class DataBaseController : public QObject
 {
 	Q_OBJECT
 public:
-	DataBaseController(QObject *parent, Controller* controller);
+	DataBaseController(QObject* parent, Controller*);
 	virtual ~DataBaseController() = default;
 
-	void					connectToDataBase();
-	void					closeDataBase();
+	void					ConnectToDB();
+	void					CloseDB();
 
-	bool					insertIntoTable(const TimerData *data);
+	bool					InsertIntoTable(const TimerData&);
 
 	// Sends set clear list of id's which selected for unite in 1 row
-	void					clearSelectedIdList()								const noexcept;
+	void					ClearSelectedIdList()								const noexcept;
 	// Sends select in database a date
-	bool					searchDate(const QDate &date);
+	bool					SearchDate(const QDate&);
 	// Sends select in database a date if chosed couple row for unite
-	bool					searchDateUsingIdList(const QDate &date);
+	bool					SearchDateUsingIdList(const QDate&);
 
 	// Returns a list of id's which selected for unite in 1 row
-	void					getSelectedIdList(QVariantList &idList)		const;
+	void					GetSelectedIdList(QVariantList& idList)		const;
 	// Returns path for database and log files
-	void					getDirectoryPath(QString &path)				const noexcept;
+	void					GetPath(QString& path)							const noexcept;
 
-	DataBase*			getDataBase()										const;
-	DataBaseModel*	getDataModel()									const;
+	DataBase&			DB()													const;
+	DataBaseModel&	DataModel()										const;
 
-	QSqlQuery			getCurrentQueryModel()						const;
+	QSqlQuery			CurrentQuery()									const;
 
 public slots:
-	void					updateModel();
+	void					UpdateModel();
 
 private:
-	QSharedPointer<DataBase> _dataBase;
-	QSharedPointer<DataBaseModel> _dataModel;
-	Controller* _controller;
+	std::shared_ptr<DataBase>			dataBase_;
+	std::shared_ptr<DataBaseModel>	dataModel_;
+	Controller*									controller_;
 };
 
+}//namespace NS_Timer

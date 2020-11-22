@@ -5,74 +5,80 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QDebug>
-QDateTime Log::_logTime = QDateTime::currentDateTime();
-QFile Log::currentLogFile;
 
-Log::Log(QObject *parent, Controller *controller) :
-   QObject(parent),
-   _controller(controller),
-   _logFileName("protocol.log")
+namespace NS_Timer
+{
+
+QDateTime LogContext::logTime = QDateTime::currentDateTime();
+QFile LogContext::logFile;
+
+LogContext::LogContext(QObject* _parent, Controller* _controller)
+: QObject(_parent)
+, controller_(_controller)
+, logFileName_("protocol.log")
 {
 	// Install function as a message handler of all debug message
 	qInstallMessageHandler(messageToFile); // comment row for print log in standart tab IDE
 }
 
-Log::~Log() {
+LogContext::~LogContext() {
 	qDebug() << "End session =================================================";
-	currentLogFile.flush();
-	currentLogFile.close();
+	logFile.flush();
+	logFile.close();
 }
 
-void Log::init(const QString &path) {
-	if(currentLogFile.isOpen())
-		currentLogFile.close();
+void LogContext::Init(const QString& _logPath) {
+	if(logFile.isOpen())
+		logFile.close();
 
-	currentLogFile.setFileName(path + _logFileName);
-	if(!currentLogFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)){
+	logFile.setFileName(_logPath + logFileName_);
+	if(!logFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)){
 		qWarning() << "can't open log file";
 		return;
 	}
 	qDebug() << "Start session =================================================";
 }
 
-QString Log::getLogFileName() const {
-	return _logFileName;
+QString LogContext::LogFileName() const {
+	return logFileName_;
 }
 
-void Log::removeCurrentLogFile() {
-	if(currentLogFile.exists()){
-		currentLogFile.close();
-		currentLogFile.remove();
+void LogContext::RemoveLogFile() {
+	if(logFile.exists()){
+		logFile.close();
+		logFile.remove();
 	}
-	if(_controller != nullptr){
+	if(controller_ != nullptr){
 		QString path;
-		_controller->getDirectoryPath(path);
-		init(path);
+		controller_->GetDirectoryPath(path);
+		Init(path);
 	}
 }
 
-void Log::openLogFileFolder() {
-	QFileInfo logFilePath(currentLogFile.fileName());
+void LogContext::OpenLogPath() {
+	QFileInfo logFilePath(logFile.fileName());
 	QDesktopServices::openUrl(QUrl(logFilePath.absoluteFilePath(), QUrl::TolerantMode));
 }
 
-void messageToFile(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
-	if(!Log::currentLogFile.isOpen())
+void messageToFile(QtMsgType _type, const QMessageLogContext& _context, const QString& _msg) {
+	if(!LogContext::logFile.isOpen())
 		return;
-	QTextStream out(&Log::currentLogFile);
-	Log::_logTime = QDateTime::currentDateTime();
-	switch (type) {
+	QTextStream out(&LogContext::logFile);
+	LogContext::logTime = QDateTime::currentDateTime();
+	switch (_type) {
 	case QtDebugMsg:
-		out << Log::_logTime.toString("yy.MM.dd hh:mm:ss") << " " << msg << ", " << context.file << endl;
+		out << LogContext::logTime.toString("yy.MM.dd hh:mm:ss") << " " << _msg << ", " << _context.file << endl;
 		break;
 	case QtWarningMsg:
-		out << Log::_logTime.toString("yy.MM.dd hh:mm:ss") << " Warning: " << msg << ", " << context.file << endl;
+		out << LogContext::logTime.toString("yy.MM.dd hh:mm:ss") << " Warning: " << _msg << ", " << _context.file << endl;
 		break;
 	case QtCriticalMsg:
-		out << Log::_logTime.toString("yy.MM.dd hh:mm:ss") << " Critical: " << msg << ", " << context.file << endl;
+		out << LogContext::logTime.toString("yy.MM.dd hh:mm:ss") << " Critical: " << _msg << ", " << _context.file << endl;
 		break;
 	case QtFatalMsg:
-		out << Log::_logTime.toString("yy.MM.dd hh:mm:ss") << " Fatal: " << msg << ", " << context.file << endl;
+		out << LogContext::logTime.toString("yy.MM.dd hh:mm:ss") << " Fatal: " << _msg << ", " << _context.file << endl;
 		std::abort();
 	}
 }
+
+}//namespace NS_Timer

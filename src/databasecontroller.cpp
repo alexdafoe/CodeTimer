@@ -3,80 +3,85 @@
 #include "databasemodel.h"
 #include "controller.h"
 
-DataBaseController::DataBaseController(QObject *parent, Controller *controller):
-	QObject(parent),
-	_controller(controller)
+namespace NS_Timer
 {
-	_dataBase = QSharedPointer<DataBase>(new DataBase(this, this));
-	_dataModel = QSharedPointer<DataBaseModel>(new DataBaseModel(this));
+
+DataBaseController::DataBaseController(QObject* _parent, Controller* _controller)
+: QObject(_parent)
+, controller_(_controller)
+{
+	dataBase_	= std::make_shared<DataBase>(new DataBase(this, this));
+	dataModel_	= std::make_shared<DataBaseModel>(new DataBaseModel(this));
 }
 
-void DataBaseController::connectToDataBase() {
-	_dataBase->connectToDataBase();
+void DataBaseController::ConnectToDB() {
+	dataBase_->connectToDataBase();
 }
 
-void DataBaseController::closeDataBase() {
-	if(_dataBase != nullptr){
-		_dataBase->closeDataBase();
+void DataBaseController::CloseDB() {
+	if(dataBase_ != nullptr){
+		dataBase_->closeDataBase();
 	}
 }
 
-bool DataBaseController::insertIntoTable(const TimerData *data) {
-	if(_dataBase != nullptr){
-		return _dataBase->insertIntoTable(data);
-	}
-	return false;
-}
-
-void DataBaseController::clearSelectedIdList() const noexcept {
-	if(_dataModel != nullptr){
-		_dataModel->clearSelectedIdList();
-	}
-}
-
-void DataBaseController::getSelectedIdList(QVariantList &idList) const {
-	if(_dataModel != nullptr){
-		_dataModel->getSelectedIdList(idList);
-	}
-}
-
-bool DataBaseController::searchDate(const QDate &date) {
-	if(_dataModel != nullptr){
-		return _dataModel->searchDate(date);
+bool DataBaseController::InsertIntoTable(const TimerData& _data) {
+	if(dataBase_ != nullptr){
+		return dataBase_->InsertIntoTable(_data);
 	}
 	return false;
 }
 
-bool DataBaseController::searchDateUsingIdList(const QDate &date) {
-	if(_dataModel != nullptr){
-		return _dataModel->searchDateUsingIdList(date);
+void DataBaseController::ClearSelectedIdList() const noexcept {
+	if(dataModel_ != nullptr){
+		dataModel_->clearSelectedIdList();
+	}
+}
+
+void DataBaseController::GetSelectedIdList(QVariantList& _idList) const {
+	if(dataModel_ != nullptr){
+		dataModel_->getSelectedIdList(_idList);
+	}
+}
+
+bool DataBaseController::SearchDate(const QDate& _date) {
+	if(dataModel_ != nullptr){
+		return dataModel_->searchDate(_date);
 	}
 	return false;
 }
 
-void DataBaseController::getDirectoryPath(QString &path) const noexcept{
-	if(_controller != nullptr){
-		_controller->getDirectoryPath(path);
+bool DataBaseController::SearchDateUsingIdList(const QDate& _date) {
+	if(dataModel_ != nullptr){
+		return dataModel_->searchDateUsingIdList(_date);
+	}
+	return false;
+}
+
+void DataBaseController::GetPath(QString& _path) const noexcept{
+	if(controller_ != nullptr){
+		controller_->GetDirectoryPath(_path);
 	}
 }
 
-DataBase *DataBaseController::getDataBase() const {
-	return _dataBase.data();
+DataBase& DataBaseController::DB() const {
+	return (DataBase&)*dataBase_.data();
 }
 
-DataBaseModel *DataBaseController::getDataModel() const {
-	return _dataModel.data();
+DataBaseModel& DataBaseController::DataModel() const {
+	return (DataBaseModel&)*dataModel_.data();
 }
 
-QSqlQuery DataBaseController::getCurrentQueryModel() const {
-	if(_dataModel != nullptr) {
-		return _dataModel->getCurrentQueryModel();
+QSqlQuery DataBaseController::CurrentQuery() const {
+	if(dataModel_ != nullptr) {
+		return dataModel_->getCurrentQueryModel();
 	}
 	return QSqlQuery();
 }
 
-void DataBaseController::updateModel() {
-	if(_dataModel != nullptr){
-		_dataModel->updateModel();
+void DataBaseController::UpdateModel() {
+	if(dataModel_ != nullptr){
+		dataModel_->updateModel();
 	}
 }
+
+}//namespace NS_Timer

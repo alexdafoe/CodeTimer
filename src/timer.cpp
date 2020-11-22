@@ -5,174 +5,165 @@
 #include <QMessageBox>
 #include <QDebug>
 
+namespace NS_Timer
+{
+
 using namespace std::chrono;
 
-Timer::Timer(QObject *parent, Controller* controller):
-	QObject(parent),
-	_controller(controller)
+Timer::Timer(QObject* _parent, Controller* _controller)
+: QObject(_parent)
+, controller_(_controller)
 {
 	// refresh clock every 1 sec (main.qml onTimerTrigger)
-	_trigger.start(1000);
-	QObject::connect(&_trigger, SIGNAL(timeout()), this, SIGNAL(timerTrigger()));
-	_timeWritingCode = duration<double>(0);
+	trigger_.start(1000);
+	QObject::connect(&trigger_, SIGNAL(timeout()), this, SIGNAL(TimerTrigger()));
+	durationWritingCode_ = duration<double>(0);
 }
 
 Timer::~Timer() {
-	if(_isSessionOngoing) stop(); //even if on pause
+	if(isSessionOngoing_) Stop(); //even if on pause
 }
 
-QString Timer::getTimeStart() const {
-	if(_timerData != nullptr)
-		return _timerData->getTimeStart();
-	return QString();
+QString Timer::TimeStart() const {
+	return timerData_.TimeStart();
 }
 
-QString Timer::getTimerStr() {
-	auto now_sec = time_point_cast<seconds>(system_clock::now());
-	auto realTime = now_sec - _lastActive;
-	double time = _timeWritingCode.count();
-	if(_isTimerWorking){
+QString Timer::TimeStr() {
+	auto now = time_point_cast<seconds>(system_clock::now());
+	auto realTime = now - lastActive_;
+	double time = durationWritingCode_.count();
+	if(isTimerWorking_){
 		// SEC_DIVIDER is a compiler dependent variable
 		// calculation std::chrono::duration to seconds
 		// established in .pro file
 		time += realTime.count()/SEC_DIVIDER;
 	}
-	TimeSecToString()(int(time), _timerStr);
-	return _timerStr;
+	TimeSecToString()((int)time, timerStr_);
+	return timerStr_;
 }
 
-QString Timer::getTimeWritingCodeStr() {
-	TimeSecToString()(int(_timeWritingCode.count()), _timeLeftStr);
-	return _timeLeftStr;
+QString Timer::TimeWritingCodeStr() {
+	TimeSecToString()(int(durationWritingCode_.count()), timeLeftStr_);
+	return timeLeftStr_;
 }
 
-bool Timer::isTimerWorking() const noexcept{
-	return _isTimerWorking;
+bool Timer::IsTimerWorking() const noexcept{
+	return isTimerWorking_;
 }
 
-void Timer::setTimerWorking(bool trigger) {
-	if(_isTimerWorking != trigger){
-		_isTimerWorking = trigger;
-		emit timerWorkingChanged(_isTimerWorking);
+void Timer::TimerWorking(bool _trigger) {
+	if(isTimerWorking_ != _trigger){
+		isTimerWorking_ = _trigger;
+		emit TimerWorkingStateChanged(isTimerWorking_);
 	}
 }
 
-bool Timer::isSessionOngoing() const noexcept{
-	return _isSessionOngoing;
+bool Timer::IsSessionOngoing() const noexcept{
+	return isSessionOngoing_;
 }
 
-void Timer::setSessionOngoing(bool state) {
-	if(_isSessionOngoing != state){
-		_isSessionOngoing = state;
-		emit timeStartStatusChanged();
+void Timer::SessionOngoing(bool _state) {
+	if(isSessionOngoing_ != _state){
+		isSessionOngoing_ = _state;
+		emit TimeStartStatusChanged();
 	}
 }
 
-unsigned int Timer::getMaxSecPauseDuration() const noexcept{
-	return _maxSecPauseDuration;
+unsigned int Timer::MaxPauseDurationSec() const noexcept{
+	return maxPauseDurationSec_;
 }
 
-void Timer::setMaxSecPauseDuration(unsigned int durationSec) {
-	if(durationSec < 1)
-		durationSec = 1;
-	if(durationSec > 3600)
-		durationSec = 3600;
-	if(_maxSecPauseDuration != durationSec){
-		_maxSecPauseDuration = durationSec;
-		emit maxSecPauseDurationChanged(durationSec);
-		qDebug() << "Maximum time break duration changed: " << durationSec << "sec";
+void Timer::MaxPauseDurationSec(unsigned int _durationSec) {
+	if(_durationSec < 1)
+		_durationSec = 1;
+	if(_durationSec > 3600)
+		_durationSec = 3600;
+	if(maxPauseDurationSec_ != _durationSec){
+		maxPauseDurationSec_ = _durationSec;
+		emit MaxPauseDurationSecChanged(_durationSec);
+		qDebug() << "Maximum time break duration changed: " << _durationSec << "sec";
 	}
 }
 
-void Timer::setTimePoint() {
-	if(!_isTimerWorking)
+void Timer::SetTimePoint() {
+	if(!isTimerWorking_)
 		return;
-	auto now_sec = time_point_cast<seconds>(system_clock::now());
-	duration<double> pauseDuration = now_sec - _lastActive;
-	if(pauseDuration.count() <= _maxSecPauseDuration){
-		_timeWritingCode += pauseDuration;
-		emit timeWritingCodeChanged();
+	auto now = time_point_cast<seconds>(system_clock::now());
+	duration<double> pauseDuration = now - lastActive_;
+	if(pauseDuration.count() <= maxPauseDurationSec_){
+		durationWritingCode_ += pauseDuration;
+		emit TimeWritingCodeChanged();
 	}
-	_lastActive = now_sec;
+	lastActive_ = now;
 }
 
-void Timer::countWorkingTime() {
-	auto now_sec = time_point_cast<seconds>(system_clock::now());
-	duration<double> workDuration = now_sec - _startWork;
-	_timeWorking += workDuration;
+void Timer::CountWorkingTime() {
+	auto now = time_point_cast<seconds>(system_clock::now());
+	duration<double> workDuration = now - startWork_;
+	durationTimeWorking_ += workDuration;
 }
 
-void Timer::start() {
-	_controller->sendSetTrayMenuActionEnable("Start", false);
-	_controller->sendSetTrayMenuActionEnable("Pause", true);
-	_controller->sendSetTrayIcon("start_standart");
-	if(!_buttonPausePressed){  // fresh start
+void Timer::Start() {
+	controller_->SendSetTrayMenuActionEnable("Start", false);
+	controller_->SendSetTrayMenuActionEnable("Pause", true);
+	controller_->SendSetTrayIcon("start_standart");
+	if(!buttonPausePressed_){  // fresh start
 		qDebug() << "Timer start";
-		try {
-			_timerData.reset(new TimerData());
-		} catch (std::exception ex) {
-			qWarning() << ex.what();
-			QMessageBox msg;
-			msg.setIcon(QMessageBox::Critical);
-			msg.setText(ex.what());
-			msg.setStandardButtons(QMessageBox::Ok);
-			msg.exec();
-			this->stop();
-			return;
-		}
-		_controller->sendSetWindowsHook();
-		_timeWorking = duration<double>(0);
+
+		timerData_.Reset();
+		controller_->SendSetWindowsHook();
+		durationTimeWorking_ = duration<double>(0);
 		emit timeStartChanged();
 	} else { // start after pause
 		qDebug() << "Timer resume";
-		_buttonPausePressed = false;
+		buttonPausePressed_ = false;
 	}
-	_startWork = time_point_cast<seconds>(system_clock::now());
-	_lastActive = _startWork;
-	this->fillTimerData();
-	setTimerWorking(true);
-	setSessionOngoing(true);
+	startWork_ = time_point_cast<seconds>(system_clock::now());
+	lastActive_ = startWork_;
+	this->FillTimerData();
+	TimerWorking(true);
+	SessionOngoing(true);
 }
 
-void Timer::pause() {
+void Timer::Pause() {
 	qDebug() << "Timer pause";
-	_buttonPausePressed = true;
-	countWorkingTime();
-	_controller->sendSetTrayMenuActionEnable("Start", true);
-	_controller->sendSetTrayMenuActionEnable("Pause", false);
-	_controller->sendSetTrayIcon("pause");
-	setTimerWorking(false);
+	buttonPausePressed_ = true;
+	CountWorkingTime();
+	controller_->SendSetTrayMenuActionEnable("Start", true);
+	controller_->SendSetTrayMenuActionEnable("Pause", false);
+	controller_->SendSetTrayIcon("pause");
+	TimerWorking(false);
 }
 
-void Timer::stop() {
+void Timer::Stop() {
 	qDebug() << "Timer stop";
-	_controller->sendUnhookWindowsHook();
-	_controller->sendSetTrayMenuActionEnable("Start", true);
-	_controller->sendSetTrayMenuActionEnable("Pause", false);
-	_controller->sendSetTrayIcon("stop");
-	setTimerWorking(false);
-	if(!_buttonPausePressed){
-		countWorkingTime();
+	controller_->SendUnhookWindowsHook();
+	controller_->SendSetTrayMenuActionEnable("Start", true);
+	controller_->SendSetTrayMenuActionEnable("Pause", false);
+	controller_->SendSetTrayIcon("stop");
+	TimerWorking(false);
+	if(!buttonPausePressed_){
+		CountWorkingTime();
 	 }
-	_buttonPausePressed = false;
-	setSessionOngoing(false);
-	recordTimerData();
+	buttonPausePressed_ = false;
+	SessionOngoing(false);
+	RecordTimerData();
 	QTimer::singleShot(1500, this, [this](){
-								_controller->sendSetTrayIcon("main");
+								controller_->SendSetTrayIcon("main");
 								});
 }
 
-void Timer::fillTimerData() {
-	if(_timerData != nullptr) {
-		_timerData->setWorkSeconds(int(_timeWorking.count()));
-		_timerData->setWritingCodeSeconds(int(_timeWritingCode.count()));
-		_timerData->setEndTime(QTime::currentTime());
-	}
+void Timer::FillTimerData() {
+	timerData_->WorkSeconds(int(durationTimeWorking_.count()));
+	timerData_->WritingCodeSeconds(int(durationWritingCode_.count()));
+	timerData_->EndTime(QTime::currentTime());
 }
 
-void Timer::recordTimerData() {
-	this->fillTimerData();
-	_controller->sendRecordData(_timerData.get());
-	_timeWritingCode = duration<double>(0);
-	emit timeWritingCodeChanged();
+void Timer::RecordTimerData() {
+	this->FillTimerData();
+	controller_->SendRecordData(timerData_);
+	durationWritingCode_ = duration<double>(0);
+	emit TimeWritingCodeChanged();
 }
+
+}//namespace NS_Timer

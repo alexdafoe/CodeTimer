@@ -3,6 +3,9 @@
 #include <QSqlQueryModel>
 #include <QSqlQuery>
 
+namespace NS_Timer
+{
+
 // This class is a database model view
 // Provide view from SQLite database to QML
 class DataBaseModel : public QSqlQueryModel
@@ -22,65 +25,62 @@ public:
 		CommentsRole // comments, note
 	};
 	// Constructor
-	explicit DataBaseModel(QObject *parent = nullptr);
+	explicit DataBaseModel(QObject* parent = nullptr);
 
 	// Is the date has any note in different rows. Propagated to QML, for CombineDate layer
 	Q_PROPERTY(bool			dateHasNote
-						READ		isDateHasNote
-						WRITE	setDateHasNote
-						NOTIFY	dateHasNoteChanged)
-	bool						isDateHasNote()													const;
-	void						setDateHasNote(bool state);
+						READ		IsDateHasNote
+						WRITE	DateHasNote
+						NOTIFY	DateHasNoteChanged)
+	bool						IsDateHasNote()													const;
+	void						DateHasNote(bool state);
 	// The number of records by date. Propagated to QML, for CombineDate layer
 	Q_PROPERTY(int			dateRowsCount
-						READ		getDateRowsCount
-						WRITE	setDateRowsCount
-						NOTIFY	dateRowsCountChanged)
-	int							getDateRowsCount()												const;
-	void						setDateRowsCount(int count);
+						READ		DateRowsCount
+						WRITE	DateRowsCount
+						NOTIFY	DateRowsCountChanged)
+	int							DateRowsCount()												const;
+	void						DateRowsCount(int count);
 
 	// Display model view by role
-	QVariant					data(const QModelIndex&	item,
+	QVariant					Data(const QModelIndex&	item,
 										int							role	= Qt::DisplayRole)	const;
 
 	// Returns query model at the moment
-	QSqlQuery				getCurrentQueryModel()										const;
+	QSqlQuery				CurrentQuery()										const;
 	// Query select in table by date
-	bool						searchDate(const QDate &date);
+	bool						SearchDate(const QDate&);
 	// Query select in table by date if chosed couple row for unite date
-	bool						searchDateUsingIdList(const QDate &date);
+	bool						SearchDateWithIdList(const QDate&);
 
 	// The list of id's which selected for unite in 1 row. Propagated to QML
-	Q_INVOKABLE void	addSelectedIdToList(int id);
-	Q_INVOKABLE void	clearSelectedIdList() noexcept;
-	void						getSelectedIdList(QVariantList &idList)						const;
+	Q_INVOKABLE void	AddSelectedId(int id);
+	Q_INVOKABLE void	ClearIdList() noexcept;
+	void						GetIdList(QVariantList &idList)						const;
 
 public slots:
 	//  Propagated to QML
 
-	void						updateModel();
-	void						updateModelWithLastQuery();
-	// Returns list of note's by date
-	QVariantList			getDateNotesList(const QDate &date);
-	// Query select in table span of date's
-	void						searchPeriod(const QDate &dateFrom, const QDate &dateTo);
-	// Query select in table by note
-	void						searhNote(QString note, bool similarBeginning);
-	// Returns id by clicking left button mouse in model view
-	int							getID(int row);
+	void						UpdateModel();
+	void						UpdateModelWithLastQuery();
+	QVariantList			NoteByDate(const QDate&);
+	void						SearchPeriod(const QDate& from, const QDate& to);
+	void						SearhNote(QString note, bool similarBeginning);
+	int							GetIdByRowId(int rowId);
 
 signals:
-	void						dateHasNoteChanged(bool);
-	void						dateRowsCountChanged(bool);
-	void						dateUniteIdListChanged();
+	void						DateHasNoteChanged(bool);
+	void						DateRowsCountChanged(bool);
+	void						DateUnitedIdListChanged();
 
 protected:
 	// Returns hash map for model view
-	QHash<int, QByteArray>	roleNames()												const;
+	QHash<int, QByteArray>	RoleNames()												const;
 
 private:
-	bool				_dateHasNote{false};
-	int					_dateRowsCount{0};
-	QVariantList	_selectedIdList; // id list which selected by user
+	bool				dateHasNote_ = false;
+	int					dateRowsCount_ = 0;
+	QVariantList	selectedIdList_; // id list which selected by user
 };
 
+}//namespace NS_Timer
