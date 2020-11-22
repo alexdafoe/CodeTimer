@@ -1,5 +1,5 @@
-#include "include/keyeventfilter.h"
-#include "include/controller.h"
+#include "keyeventfilter.h"
+#include "controller.h"
 #include <stdio.h>
 #include <QDebug>
 
@@ -10,40 +10,40 @@ Controller* KeyEventFilter::_controller = nullptr;
 
 //Methods
 KeyEventFilter::KeyEventFilter(Controller *controller) {
-    _controller = controller;
+	_controller = controller;
 }
 
 KeyEventFilter::~KeyEventFilter(){
-    unhookWindowsHook();
+	unhookWindowsHook();
 }
 
-void KeyEventFilter::setSymbolList(const QList<unsigned long> &list) {
-    _symbolList = list;
+void KeyEventFilter::setTrackingSymbolList(const QList<unsigned long> &list) {
+	_symbolList = list;
 }
 
 void KeyEventFilter::setWindowsHook(){
-    HMODULE hInstance = GetModuleHandle(nullptr);
-    HHOOK hook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hInstance, 0);
-    if(hook != nullptr){
-        _keyHook = hook;
-        qDebug() << "Key Hook: enabled";
-    }
+	HMODULE hInstance = GetModuleHandle(nullptr);
+	HHOOK hook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, hInstance, 0);
+	if(hook != nullptr){
+		_keyHook = hook;
+		qDebug() << "Key Hook: enabled";
+	}
 }
 
 void KeyEventFilter::unhookWindowsHook() {
-    if(UnhookWindowsHookEx(_keyHook))
-        qDebug() << "Key Hook: disabled";
+	if(UnhookWindowsHookEx(_keyHook))
+		qDebug() << "Key Hook: disabled";
 }
 
 LRESULT KeyEventFilter::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
-    if(nCode == HC_ACTION
-            && wParam == WM_KEYDOWN
-            && _controller->isTimerWorking()) {
-        PKBDLLHOOKSTRUCT key = PKBDLLHOOKSTRUCT(lParam);
-        if(_symbolList.contains(key->vkCode)){
-            qDebug() << "special key detected:" << key->vkCode;
-            _controller->sendControlKeyNoticed();
-        }
-    }
-    return CallNextHookEx(_keyHook, nCode, wParam, lParam);
+	if(nCode == HC_ACTION
+			&& wParam == WM_KEYDOWN
+			&& _controller->isTimerWorking()) {
+		PKBDLLHOOKSTRUCT key = PKBDLLHOOKSTRUCT(lParam);
+		if(_symbolList.contains(key->vkCode)){
+			qDebug() << "special key detected:" << key->vkCode;
+			_controller->sendControlKeyDetected();
+		}
+	}
+	return CallNextHookEx(_keyHook, nCode, wParam, lParam);
 }
