@@ -1,4 +1,5 @@
 #pragma once
+#include "controller.h"
 #include "timerdata.h"
 
 #include <QObject>
@@ -10,15 +11,13 @@
 namespace NS_Timer
 {
 
-class Controller;
-
 // This class is a main Timer
 // Count time between start/pause/stop and key symbols detected event
 class Timer : public QObject
 {
 	Q_OBJECT
 public:
-	explicit Timer(QObject* parent = nullptr, Controller* controller = nullptr);
+	explicit Timer(std::reference_wrapper<Controller>);
 	virtual ~Timer();
 
 	// String that shows start counting of time. Propagated to QML
@@ -90,19 +89,19 @@ private:
 	using TimePoint	= std::chrono::time_point<std::chrono::system_clock>;
 	using TimeDuration		= std::chrono::duration<double>;
 
-	Controller*							controller_;
-	TimePoint							lastActive_;
-	TimePoint							startWork_;
-	TimeDuration						durationWritingCode_;
-	TimeDuration						durationTimeWorking_;
-	TimerData							timerData_;
-	unsigned int						maxPauseDurationSec_	= 300; // 5 min
-	bool									buttonPausePressed_	= false;
-	bool									isTimerWorking_			= false;
-	bool									isSessionOngoing_		= false;
-	QTimer								trigger_; // call signal timerTrigger every 1 sec for refresh clock in QML layer
-	QString								timerStr_					= "0";
-	QString								timeLeftStr_;
+	std::reference_wrapper<Controller>		controller_;
+	TimePoint										lastActive_;
+	TimePoint										startWork_;
+	TimeDuration									durationWritingCode_;
+	TimeDuration									durationTimeWorking_;
+	TimerData										timerData_;
+	unsigned int									maxPauseDurationSec_	= 300; // 5 min
+	bool												buttonPausePressed_	= false;
+	bool												isTimerWorking_			= false;
+	bool												isSessionOngoing_		= false;
+	QTimer											trigger_; // call signal timerTrigger every 1 sec for refresh clock in QML layer
+	QString											timerStr_					= "0";
+	QString											timeLeftStr_;
 };
 
 }//namespace NS_Timer

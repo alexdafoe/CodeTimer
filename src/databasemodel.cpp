@@ -6,43 +6,43 @@
 namespace NS_Timer
 {
 
-DataBaseModel::DataBaseModel(QObject* _parent)
+DatabaseModel::DatabaseModel(QObject* _parent)
 : QSqlQueryModel(_parent)
 {}
 
-bool DataBaseModel::IsDateHasNote() const {
+bool DatabaseModel::IsDateHasNote() const {
 	return dateHasNote_;
 }
 
-void DataBaseModel::DateHasNote(bool _state) {
+void DatabaseModel::DateHasNote(bool _state) {
 	if(dateHasNote_ != _state){
 		dateHasNote_ = _state;
 		emit DateHasNoteChanged(_state);
 	}
 }
 
-int DataBaseModel::DateRowsCount() const {
+int DatabaseModel::DateRowsCount() const {
 	return dateRowsCount_;
 }
 
-void DataBaseModel::DateRowsCount(int _count) {
+void DatabaseModel::DateRowsCount(int _count) {
 	if(_count >= 0){
 		dateRowsCount_ = _count;
 		emit DateRowsCountChanged(_count);
 	}
 }
 
-QVariant DataBaseModel::Data(const QModelIndex& _item, int _role) const {
+QVariant DatabaseModel::Data(const QModelIndex& _item, int _role) const {
 	int columnId = _role - Qt::UserRole -1;
 	QModelIndex modelIndex = this->index(_item.row(), columnId);
 	return QSqlQueryModel::data(modelIndex, Qt::DisplayRole);
 }
 
-QSqlQuery DataBaseModel::CurrentQuery() const {
+QSqlQuery DatabaseModel::CurrentQuery() const {
 	return this->query();
 }
 
-void DataBaseModel::UpdateModel() {
+void DatabaseModel::Update() {
 	QSqlQuery query;
 	if(query.exec("SELECT * FROM " TABLE_NAME ";")){
 		this->setQuery(query);
@@ -51,7 +51,7 @@ void DataBaseModel::UpdateModel() {
 	}
 }
 
-void DataBaseModel::UpdateModelWithLastQuery() {
+void DatabaseModel::UpdateWithLastQuery() {
 	QSqlQuery query = this->query();
 	if(query.exec()){
 		this->setQuery(query);
@@ -60,7 +60,7 @@ void DataBaseModel::UpdateModelWithLastQuery() {
 	}
 }
 
-QVariantList DataBaseModel::NoteByDate(const QDate& _date) {
+QVariantList DatabaseModel::NoteByDate(const QDate& _date) {
 	QVariantList listOfNote;
 	listOfNote.clear();
 	int rowsCount = 0;
@@ -80,7 +80,7 @@ QVariantList DataBaseModel::NoteByDate(const QDate& _date) {
 	return listOfNote;
 }
 
-bool DataBaseModel::SearchDate(const QDate& _date) {
+bool DatabaseModel::SearchDate(const QDate& _date) {
 	qDebug() << "Try to find Date:" << _date.toString("yyyy-MM-dd");
 	QSqlQuery query;
 	if(query.prepare("SELECT id, " _DATE ", "
@@ -103,7 +103,7 @@ bool DataBaseModel::SearchDate(const QDate& _date) {
 	return true;
 }
 
-bool DataBaseModel::SearchDateWithIdList(const QDate& _date) {
+bool DatabaseModel::SearchDateWithIdList(const QDate& _date) {
 	int idListSize = selectedIdList_.count();
 	if(idListSize == 0)
 		return SearchDate(_date);
@@ -140,20 +140,20 @@ bool DataBaseModel::SearchDateWithIdList(const QDate& _date) {
 	return true;
 }
 
-void DataBaseModel::AddSelectedId(int _id) {
+void DatabaseModel::AddSelectedId(int _id) {
 	if(!selectedIdList_.contains(_id))
 		selectedIdList_.append(_id);
 }
 
-void DataBaseModel::ClearIdList() noexcept{
+void DatabaseModel::ClearIdList() noexcept{
 	selectedIdList_.clear();
 }
 
-void DataBaseModel::GetIdList(QVariantList& _idList) const {
+void DatabaseModel::GetIdList(QVariantList& _idList) const {
 	_idList = selectedIdList_;
 }
 
-void DataBaseModel::SearchPeriod(const QDate& _fromDate, const QDate& _toDate){
+void DatabaseModel::SearchPeriod(const QDate& _fromDate, const QDate& _toDate){
 	qDebug() << "Try to find Preriod from:" << _fromDate.toString("yyyy-MM-dd") << "\tto:"<< _toDate.toString("yyyy-MM-dd");
 	if(_fromDate > _toDate){
 		qDebug() << "incorrect date range";
@@ -180,7 +180,7 @@ void DataBaseModel::SearchPeriod(const QDate& _fromDate, const QDate& _toDate){
 	this->setQuery(query);
 }
 
-void DataBaseModel::SearhNote(QString _note, bool _similarBeginning){
+void DatabaseModel::SearhNote(QString _note, bool _similarBeginning){
 	qDebug() << "Try to find note: " << _note;
 	QString equal("=");
 	if(_similarBeginning) {
@@ -208,11 +208,11 @@ void DataBaseModel::SearhNote(QString _note, bool _similarBeginning){
 	this->setQuery(query);
 }
 
-int DataBaseModel::GetIdByRowId(int _row) {
+int DatabaseModel::GetIdByRowId(int _row) {
 	return this->Data(this->index(_row, 0), IdRole).toInt();
 }
 
-QHash<int, QByteArray> DataBaseModel::RoleNames() const {
+QHash<int, QByteArray> DatabaseModel::RoleNames() const {
 	QHash<int, QByteArray> roles;
 	roles[IdRole] = "id";
 	roles[DateRole] = "date";

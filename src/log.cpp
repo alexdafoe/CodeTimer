@@ -1,5 +1,4 @@
 #include "log.h"
-#include "controller.h"
 #include <QTextStream>
 #include <QFileInfo>
 #include <QDesktopServices>
@@ -9,12 +8,16 @@
 namespace NS_Timer
 {
 
-QDateTime LogContext::logTime = QDateTime::currentDateTime();
-QFile LogContext::logFile;
+QDateTime LogContext::logTime	= QDateTime::currentDateTime();
+QFile LogContext::logFile			= QFile();
 
-LogContext::LogContext(QObject* _parent, Controller* _controller)
-: QObject(_parent)
-, controller_(_controller)
+// Message handler
+void messageToFile(QtMsgType							type,
+						   const QMessageLogContext&	context,
+						   const QString&						msg);
+
+LogContext::LogContext(const QString& _workDirictory)
+: workDirictory_(_workDirictory)
 , logFileName_("protocol.log")
 {
 	// Install function as a message handler of all debug message
@@ -27,11 +30,11 @@ LogContext::~LogContext() {
 	logFile.close();
 }
 
-void LogContext::Init(const QString& _logPath) {
+void LogContext::Init() {
 	if(logFile.isOpen())
 		logFile.close();
 
-	logFile.setFileName(_logPath + logFileName_);
+	logFile.setFileName(workDirictory_ + logFileName_);
 	if(!logFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)){
 		qWarning() << "can't open log file";
 		return;
@@ -48,11 +51,7 @@ void LogContext::RemoveLogFile() {
 		logFile.close();
 		logFile.remove();
 	}
-	if(controller_ != nullptr){
-		QString path;
-		controller_->GetDirectoryPath(path);
-		Init(path);
-	}
+	Init();
 }
 
 void LogContext::OpenLogPath() {

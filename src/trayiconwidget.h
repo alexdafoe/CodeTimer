@@ -14,7 +14,7 @@ class TrayIconWidget : public QObject
 {
 	Q_OBJECT
 public:
-	TrayIconWidget(QObject* parent, Controller*);
+	explicit TrayIconWidget(Controller*);
 	virtual ~TrayIconWidget()							= default;
 
 	void				SetActionEnable(const QString& actionName, bool isEnabled);

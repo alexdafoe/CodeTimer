@@ -4,10 +4,11 @@
 #
 #-------------------------------------------------
 
-QT				+= core qml quick widgets sql
-CONFIG		+= c++17
-TARGET		= CodeTimer
-TEMPLATE	= app
+QT							+= core qml quick widgets sql
+CONFIG					+= c++14
+QMAKE_CXXFLAGS	+= -std=c++14
+TARGET					= CodeTimer
+TEMPLATE				= app
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been noteed as deprecated (the exact warnings
@@ -28,7 +29,6 @@ SOURCES +=											\
 	src/trayiconwidget.cpp							\
 	src/database.cpp									\
 	src/databasemodel.cpp							\
-	src/databasecontroller.cpp						\
 	src/timer.cpp										\
 	src/log.cpp											\
 	src/timerdata.cpp									\
@@ -44,7 +44,6 @@ HEADERS +=											\
 	src/timesectostring.h							\
 	src/trayiconwidget.h								\
 	src/database.h									\
-	src/databasecontroller.h						\
 	src/databasemodel.h
 
 FORMS +=

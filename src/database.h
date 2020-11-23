@@ -1,7 +1,9 @@
 #pragma once
+#include "timerdata.h"
 #include <QObject>
 #include <QSql>
 #include <QSqlDatabase>
+#include <memory>
 
 // Define macro names
 #define DATABASE_NAME			"statistic.db"
@@ -19,31 +21,38 @@
 namespace NS_Timer
 {
 
-class DataBaseController;
-class TimerData;
+class DatabaseModel;
 
 // This class is a SQLite database manager
 // Provide necessary work operations with database
-class DataBase : public QObject
+class DatabaseWrap : public QObject
 {
 	Q_OBJECT
 public:
-	DataBase(QObject* parent, DataBaseController*);
-	virtual ~DataBase();
+	DatabaseWrap(std::shared_ptr<DatabaseModel>, const QString& workDirictory);
+	DatabaseWrap(const DatabaseWrap&)												= delete;
+	DatabaseWrap(const DatabaseWrap&&)											= delete;
+	virtual ~DatabaseWrap();
 
-	void			ConnectToDB();
-	void			CloseDB();
+	DatabaseWrap&	operator=(const DatabaseWrap&)							= delete;
+	DatabaseWrap&	operator=(const DatabaseWrap&&)							= delete;
+
+	void					ConnectToDB();
+	void					CloseDB();
 
 	// The note for current session. Propagated to QML
-	Q_PROPERTY(QString note READ Note WRITE Note NOTIFY NoteChanged)
-	QString		Note() const;
-	void			Note(const QString& note);
+	Q_PROPERTY(QString	note_
+						READ		Note
+						WRITE	Note
+						NOTIFY	NoteChanged)
+	QString				Note() const;
+	void					Note(const QString& note);
 
 	// Query insert TimerData into table in database
-	bool			InsertIntoTable(const TimerData&);
+	bool					InsertIntoTable(const TimerData&);
 
 signals:
-	void			NoteChanged(QString);
+	void					NoteChanged(QString);
 
 public slots:
 	// Propagated to QML
@@ -67,9 +76,10 @@ private:
 	int				GetIdUpdateDate(const QDate& date, QVariantList& listOfKeys, QVector<int>& trashId);
 
 private:
-	DataBaseController*	dbController_;
-	QSqlDatabase			db_;
-	QString					note_;
+	std::shared_ptr<DatabaseModel>	dbModel_;
+	QString										workDirictory_;
+	QSqlDatabase								db_;
+	QString										note_;
 };
 
 }//namespace NS_Timer

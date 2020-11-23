@@ -1,6 +1,8 @@
 #include "timer.h"
-#include "controller.h"
+#include "keyeventfilter.h"
+#include "trayiconwidget.h"
 #include "timesectostring.h"
+#include "database.h"
 #include <QDateTime>
 #include <QMessageBox>
 #include <QDebug>
@@ -10,9 +12,8 @@ namespace NS_Timer
 
 using namespace std::chrono;
 
-Timer::Timer(QObject* _parent, Controller* _controller)
-: QObject(_parent)
-, controller_(_controller)
+Timer::Timer(std::reference_wrapper<Controller> _controller)
+: controller_(_controller)
 {
 	// refresh clock every 1 sec (main.qml onTimerTrigger)
 	trigger_.start(1000);
@@ -104,14 +105,14 @@ void Timer::CountWorkingTime() {
 }
 
 void Timer::Start() {
-	controller_->SendSetTrayMenuActionEnable("Start", false);
-	controller_->SendSetTrayMenuActionEnable("Pause", true);
-	controller_->SendSetTrayIcon("start_standart");
+	controller_.get().SysTrayWidget().SetActionEnable("Start", false);
+	controller_.get().SysTrayWidget().SetActionEnable("Pause", true);
+	controller_.get().SysTrayWidget().SetTrayIcon("start_standart");
 	if(!buttonPausePressed_){  // fresh start
 		qDebug() << "Timer start";
 
 		timerData_.Reset();
-		controller_->SendSetWindowsHook();
+		controller_.get().EventFilter().SetWindowsHook();
 		durationTimeWorking_ = duration<double>(0);
 		emit timeStartChanged();
 	} else { // start after pause
@@ -129,18 +130,18 @@ void Timer::Pause() {
 	qDebug() << "Timer pause";
 	buttonPausePressed_ = true;
 	CountWorkingTime();
-	controller_->SendSetTrayMenuActionEnable("Start", true);
-	controller_->SendSetTrayMenuActionEnable("Pause", false);
-	controller_->SendSetTrayIcon("pause");
+	controller_.get().SysTrayWidget().SetActionEnable("Start", true);
+	controller_.get().SysTrayWidget().SetActionEnable("Pause", false);
+	controller_.get().SysTrayWidget().SetTrayIcon("pause");
 	TimerWorking(false);
 }
 
 void Timer::Stop() {
 	qDebug() << "Timer stop";
-	controller_->SendUnhookWindowsHook();
-	controller_->SendSetTrayMenuActionEnable("Start", true);
-	controller_->SendSetTrayMenuActionEnable("Pause", false);
-	controller_->SendSetTrayIcon("stop");
+	controller_.get().EventFilter().UnhookWindowsHook();
+	controller_.get().SysTrayWidget().SetActionEnable("Start", true);
+	controller_.get().SysTrayWidget().SetActionEnable("Pause", false);
+	controller_.get().SysTrayWidget().SetTrayIcon("stop");
 	TimerWorking(false);
 	if(!buttonPausePressed_){
 		CountWorkingTime();
@@ -149,7 +150,7 @@ void Timer::Stop() {
 	SessionOngoing(false);
 	RecordTimerData();
 	QTimer::singleShot(1500, this, [this](){
-								controller_->SendSetTrayIcon("main");
+								controller_.get().SysTrayWidget().SetTrayIcon("main");
 								});
 }
 
@@ -161,7 +162,7 @@ void Timer::FillTimerData() {
 
 void Timer::RecordTimerData() {
 	this->FillTimerData();
-	controller_->SendRecordData(timerData_);
+	controller_.get().DB().InsertIntoTable(timerData_);
 	durationWritingCode_ = duration<double>(0);
 	emit TimeWritingCodeChanged();
 }

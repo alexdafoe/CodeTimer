@@ -8,22 +8,20 @@
 namespace NS_Timer
 {
 
-class Controller;
-
-// Message handler
-void messageToFile(QtMsgType							type,
-						   const QMessageLogContext&	context,
-						   const QString&						msg);
-
 // This class is a file manager for log
 class LogContext : public QObject
 {
 	Q_OBJECT
 public:
-	LogContext(QObject* parent, Controller*);
+	explicit LogContext(const QString& workDirictory);
+	LogContext(const LogContext&)									= delete;
+	LogContext(const LogContext&&)								= delete;
 	virtual ~LogContext();
 
-	void						Init(const QString& logPath);
+	LogContext&			operator=(const LogContext&)		= delete;
+	LogContext&			operator=(const LogContext&&)		= delete;
+
+	void						Init();
 
 	// Full log file name. Propagated to QML
 	Q_PROPERTY(QString	logFileName_
@@ -40,7 +38,7 @@ public slots:
 	void						OpenLogPath();
 
 private:
-	Controller*				controller_;
+	QString					workDirictory_;
 	QString					logFileName_;
 };
 

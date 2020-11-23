@@ -1,4 +1,5 @@
 #pragma once
+#include "controller.h"
 #include <QList>
 #include <Windows.h>
 #include <WinUser.h>
@@ -6,14 +7,12 @@
 namespace NS_Timer
 {
 
-class Controller;
-
 // This class is event filter
 // Tracking keyboard using Win API
 class KeyEventFilter
 {
 public:
-	KeyEventFilter(Controller*);
+	explicit KeyEventFilter(Controller*);
 	KeyEventFilter(const KeyEventFilter&)										= delete;
 	KeyEventFilter(KeyEventFilter&&)											= delete;
 	virtual ~KeyEventFilter();
@@ -29,9 +28,9 @@ public:
 	static LRESULT CALLBACK		KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 
 private:
+	static Controller*					controller_;
 	static HHOOK						keyHook_;
 	static QList<unsigned long>	symbolList_;
-	static Controller*					controller_;
 };
 
 }//namespace NS_Timer

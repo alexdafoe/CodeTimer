@@ -1,16 +1,18 @@
 #pragma once
 #include <QObject>
+#include <QString>
 #include <memory>
 
 namespace NS_Timer {
 
-class SymbolsSettings;
 class Timer;
 class TimerData;
 class KeyEventFilter;
 class TrayIconWidget;
-class DataBaseController;
+class SymbolsSettings;
 class LogContext;
+class DatabaseWrap;
+class DatabaseModel;
 
 // This class is mediator between different classes
 // Provide access for QML layer
@@ -19,48 +21,44 @@ class Controller : public QObject
 {
 	Q_OBJECT
 public:
-	explicit Controller(QObject* parent = nullptr);
+	Controller();
+	Controller(const Controller&)										= delete;
+	Controller(const Controller&&)										= delete;
 	virtual ~Controller();
+
+	Controller&				operator=(const Controller&)			= delete;
+	Controller&				operator=(const Controller&&)		= delete;
 
 	void						Init();
 
-	LogContext&			LogContext()														const	;
-	SymbolsSettings&		SymbolsSettings()												const	;
-	KeyEventFilter&		EventFilter()														const	;
-	DataBaseController&	DatabaseController()												const	;
-	Timer&					Timer()																const	;
-	TrayIconWidget&		SysTrayWidget()													const	;
-
-	// Returns a list of key symbols which enabled for tracking
-	void						GetTrackingSymbolsList(QList<unsigned long>& list)	const;
-	 // Returns path where aloceted database and log files
-	void						GetDirectoryPath(QString& path)								const noexcept;
-	bool						IsTimerWorking()													const noexcept;
-
-	void						SendSetWindowsHook()											const;
-	void						SendUnhookWindowsHook()									const;
+	LogContext&			Log()											const	;
+	SymbolsSettings&		KeyControlSettings()						const	;
+	KeyEventFilter&		EventFilter()								const	;
+	DatabaseWrap&		DB()											const;
+	DatabaseModel&		DBModel()									const;
+	Timer&					TimerControl()								const	;
+	TrayIconWidget&		SysTrayWidget()							const	;
 
 	// Sends set key symbols for tracking
-	void						SendSetSymbolListIntoFilter(const QList<unsigned long> &list)	const;
 	void						SendControlKeyDetected();
-	void						SendRecordData(const TimerData& data);
-	void						SendSetTrayMenuActionEnable(const QString& actionName, bool isEnable);
-	void						SendSetTrayIcon(const QString& icon_name);
 
 public slots:
 	// Sends events to Timer
 	void						SendStartTimer();
 	void						SendPauseTimer();
 	void						SsendStopTimer();
+	//db
+	void						UpdateModel();
 
 private:
-	std::shared_ptr<NS_Timer::LogContext>				logContext_;
-	std::shared_ptr<NS_Timer::SymbolsSettings>		symbolsSettings_;
-	std::shared_ptr<NS_Timer::KeyEventFilter>			eventFilter_;
-	std::shared_ptr<NS_Timer::DataBaseController>	dbController_;
-	std::shared_ptr<NS_Timer::Timer>						timer_;
-	std::shared_ptr<NS_Timer::TrayIconWidget>		trayIcon_;
-	QString															appPath_; // path for database and log files
+	QString											appPath_; // path for database and log files
+	std::shared_ptr<LogContext>				logContext_;
+	std::shared_ptr<DatabaseModel>		dbModel_;
+	std::shared_ptr<DatabaseWrap>			dbWrap_;
+	std::shared_ptr<KeyEventFilter>			eventFilter_;
+	std::shared_ptr<SymbolsSettings>		symbolsSettings_;
+	std::shared_ptr<Timer>						timer_;
+	std::shared_ptr<TrayIconWidget>		trayIcon_;
 };
 
 }//namespace NS_Timer

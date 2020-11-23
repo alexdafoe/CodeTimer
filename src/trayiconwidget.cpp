@@ -8,9 +8,8 @@
 namespace NS_Timer
 {
 
-TrayIconWidget::TrayIconWidget(QObject* _parent, Controller* _controller)
-: QObject(_parent)
-, controller_(_controller)
+TrayIconWidget::TrayIconWidget(Controller* _controller)
+: controller_(_controller)
 {
 	trayMenu_ = QSharedPointer<QMenu>(new QMenu());
 	QScopedPointer <QAction> viewWindow(new QAction("Show", this));

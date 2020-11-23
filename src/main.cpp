@@ -1,10 +1,10 @@
-#include "log.h"
+
 #include "controller.h"
+#include "log.h"
 #include "trayiconwidget.h"
 #include "symbolssettings.h"
 #include "timer.h"
 #include "timerdata.h"
-#include "databasecontroller.h"
 #include "databasemodel.h"
 #include "database.h"
 #include <QApplication>
@@ -20,11 +20,11 @@ int main(int argc, char *argv[])
 	controller.Init();
 
 	QQmlApplicationEngine engine;
-	engine.rootContext()->setContextProperty("protocolLog",		&controller.LogContext());
-	engine.rootContext()->setContextProperty("timer",					&controller.Timer());
-	engine.rootContext()->setContextProperty("symbolsSettings",	&controller.SymbolsSettings());
-	engine.rootContext()->setContextProperty("dataBase",			&controller.DatabaseController().DB());
-	engine.rootContext()->setContextProperty("databaseModel",	&controller.DatabaseController().DataModel());
+	engine.rootContext()->setContextProperty("protocolLog",		&controller.Log());
+	engine.rootContext()->setContextProperty("timer",					&controller.TimerControl());
+	engine.rootContext()->setContextProperty("symbolsSettings",	&controller.KeyControlSettings());
+	engine.rootContext()->setContextProperty("database",			&controller.DB());
+	engine.rootContext()->setContextProperty("databaseModel",	&controller.DBModel());
 	engine.rootContext()->setContextProperty("sysTray",				&controller.SysTrayWidget());
 	engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
 

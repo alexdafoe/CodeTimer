@@ -1,6 +1,5 @@
 #include "database.h"
-#include "databasecontroller.h"
-#include "timerdata.h"
+#include "databasemodel.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -12,20 +11,20 @@
 namespace NS_Timer
 {
 
-DataBase::DataBase(QObject* _parent, DataBaseController* _dbController)
-: QObject(_parent)
-, dbController_(_dbController)
-{}
+DatabaseWrap::DatabaseWrap(shared_ptr<DatabaseModel> _dbModel, const QString& _workDirictory)
+: dbModel_(_dbModel)
+, workDirictory_(_workDirictory)
+{
+	assert(dbModel_ && workDirictory_.isEmpty());
+}
 
-DataBase::~DataBase() {
+DatabaseWrap::~DatabaseWrap() {
 	this->CloseDB();
 }
 
-void DataBase::ConnectToDB() {
+void DatabaseWrap::ConnectToDB() {
 	QFile dbFile;
-	QString path;
-	dbController_->GetPath(path);
-	dbFile.setFileName(QString(path + DATABASE_NAME));
+	dbFile.setFileName(QString(workDirictory_ + DATABASE_NAME));
 	if(!dbFile.exists()){
 		this->RestroreDB();
 	} else {
@@ -33,25 +32,25 @@ void DataBase::ConnectToDB() {
 	}
 }
 
-void DataBase::CloseDB() {
+void DatabaseWrap::CloseDB() {
 	if(db_.isOpen()){
 		qDebug() << "close Database";
 		db_.close();
 	}
 }
 
-QString DataBase::Note() const {
+QString DatabaseWrap::Note() const {
 	return note_;
 }
 
-void DataBase::Note(const QString& _note) {
+void DatabaseWrap::Note(const QString& _note) {
 	if(note_ != _note){
 		note_ = _note;
-		emit noteChanged(_note);
+		emit NoteChanged(_note);
 	}
 }
 
-bool DataBase::InsertIntoTable(const TimerData& _data) {
+bool DatabaseWrap::InsertIntoTable(const TimerData& _data) {
 	qDebug() << "check time for record data";
 	if(_data.SecondsWritingCode() <= 0)
 		return false;
@@ -81,11 +80,11 @@ bool DataBase::InsertIntoTable(const TimerData& _data) {
 		return false;
 	}
 	qDebug() << "Successfully recorded statistic data";
-	dbController_->UpdateModel();
+	dbModel_->Update();
 	return true;
 }
 
-bool DataBase::EditNoteById(int _id, const QString& _newNote) {
+bool DatabaseWrap::EditNoteById(int _id, const QString& _newNote) {
 	qDebug() << "edit record id: " << _id << " with new note: " << _newNote;
 	QSqlQuery query(db_);
 	if(query.prepare("UPDATE " TABLE_NAME " SET " _COMMENTS " = :newNote WHERE id = :ID ;")){
@@ -102,7 +101,7 @@ bool DataBase::EditNoteById(int _id, const QString& _newNote) {
 	return true;
 }
 
-bool DataBase::CollapseDateByNote(const QDate& _date, const QString& _note) {
+bool DatabaseWrap::CollapseDateByNote(const QDate& _date, const QString& _note) {
 	bool sqlState = true;
 	QVector<int> idForDelete;
 	QVariantList listOfKeys;
@@ -152,7 +151,7 @@ bool DataBase::CollapseDateByNote(const QDate& _date, const QString& _note) {
 		db_.rollback();
 	} else {
 		qDebug() << "Success transaction: Unite date" << _date.toString("yy.MM.dd") << " with note" << _note;
-		dbController_->ClearSelectedIdList();
+		dbModel_->ClearSelectedIdList();
 		if(!idForDelete.isEmpty()){
 			for(auto id : idForDelete)
 				DeleteRecordById(id);
@@ -161,7 +160,7 @@ bool DataBase::CollapseDateByNote(const QDate& _date, const QString& _note) {
 	return sqlState;
 }
 
-bool DataBase::DeleteRecordById(int _id) {
+bool DatabaseWrap::DeleteRecordById(int _id) {
 	QSqlQuery query(db_);
 	if(query.prepare("DELETE FROM " TABLE_NAME " WHERE id = :ID ;")){
 		query.bindValue(":ID", _id);
@@ -178,8 +177,8 @@ bool DataBase::DeleteRecordById(int _id) {
 	return true;
 }
 
-bool DataBase::DeleteAllRecords() {
-	QSqlQuery lastQuery = dbController_->CurrentQuery();
+bool DatabaseWrap::DeleteAllRecords() {
+	QSqlQuery lastQuery = dbModel_->CurrentQuery();
 	QString queryStr = lastQuery.executedQuery();
 	if(queryStr.contains("WHERE")){
 		return RemoveRecordsInLastQuery(lastQuery);
@@ -197,7 +196,7 @@ bool DataBase::DeleteAllRecords() {
 	return true;
 }
 
-bool DataBase::RemoveRecordsInLastQuery(const QSqlQuery& _lastQuery) {
+bool DatabaseWrap::RemoveRecordsInLastQuery(const QSqlQuery& _lastQuery) {
 	QStringList keys, values;
 	QString newQueryStr = this->PrepareQueryStrToBind(_lastQuery, keys, values);
 	newQueryStr.insert(0, "DELETE FROM " TABLE_NAME " WHERE ");
@@ -220,7 +219,7 @@ bool DataBase::RemoveRecordsInLastQuery(const QSqlQuery& _lastQuery) {
 	return true;
 }
 
-QString DataBase::NoteById(int _id) {
+QString DatabaseWrap::NoteById(int _id) {
 	QSqlQuery query(db_);
 	QString note;
 	if(query.prepare("SELECT " _COMMENTS " FROM " TABLE_NAME " WHERE id = :ID ;")){
@@ -237,24 +236,22 @@ QString DataBase::NoteById(int _id) {
 	return note;
 }
 
-bool DataBase::OpenDB() {
+bool DatabaseWrap::OpenDB() {
 	qDebug() << "open Database";
 	db_ = QSqlDatabase::addDatabase("QSQLITE");
 	db_.setHostName(DATABASE_HOSTNAME);
-	QString path;
-	dbController_->GetPath(path);
-	db_.setDatabaseName(path + DATABASE_NAME);
+	db_.setDatabaseName(workDirictory_ + DATABASE_NAME);
 	return db_.open();
 }
 
-bool DataBase::RestroreDB() {
+bool DatabaseWrap::RestroreDB() {
 	if(this->OpenDB())
 		return this->CreateTable();
 	qWarning() << "Can't restore database";
 	return false;
 }
 
-bool DataBase::CreateTable() {
+bool DatabaseWrap::CreateTable() {
 	QSqlQuery query(db_);
 	if(query.exec("CREATE TABLE " TABLE_NAME " ("
 				  "id INTEGER PRIMARY KEY, "
@@ -269,12 +266,12 @@ bool DataBase::CreateTable() {
 				  ");" )) {
 		return true;
 	}
-	qDebug() << "DataBase error: can't create table \'" << TABLE_NAME << "\' ";
+	qDebug() << "DatabaseWrap error: can't create table \'" << TABLE_NAME << "\' ";
 	qDebug() << query.lastError().text();
 	return false;
 }
 
-QString DataBase::PrepareQueryStrToBind(const QSqlQuery& _query, QStringList& _keys, QStringList& _values) {
+QString DatabaseWrap::PrepareQueryStrToBind(const QSqlQuery& _query, QStringList& _keys, QStringList& _values) {
 	QString queryStr = _query.executedQuery();
 	QMapIterator<QString, QVariant> it(_query.boundValues());
 	QStringList fields;
@@ -308,16 +305,16 @@ QString DataBase::PrepareQueryStrToBind(const QSqlQuery& _query, QStringList& _k
 	return newQueryStr;
 }
 
-int DataBase::GetIdUpdateDate(const QDate& _date, QVariantList& _listOfKeys, QVector<int>& _trashId) {
+int DatabaseWrap::GetIdUpdateDate(const QDate& _date, QVariantList& _listOfKeys, QVector<int>& _trashId) {
 	QVariantList idList;
-	dbController_->GetSelectedIdList(idList);
+	dbModel_->GetIdList(idList);
 
 	if(idList.isEmpty())
-		dbController_->SearchDate(_date);
+		dbModel_->SearchDate(_date);
 	else
-		dbController_->SearchDateUsingIdList(_date);
+		dbModel_->SearchDateWithIdList(_date);
 
-	QSqlQuery query = dbController_->CurrentQuery();
+	QSqlQuery query = dbModel_->CurrentQuery();
 	QString startTmpStr, endTmpStr;
 	QTime startSessionTime, startTmpTime;
 	QTime endSessionTime, endTmpTime;

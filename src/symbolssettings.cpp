@@ -1,14 +1,12 @@
 #include "symbolssettings.h"
-#include "controller.h"
-#include <windows.h>
+#include "keyeventfilter.h"
 #include <QDebug>
 
 namespace NS_Timer
 {
 
-SymbolsSettings::SymbolsSettings(QObject* _parent, Controller* _controller)
-: QObject(_parent)
-, 	controller_(_controller)
+SymbolsSettings::SymbolsSettings(shared_ptr<KeyEventFilter> _eventFilter)
+: eventFilter_(_eventFilter)
 {
 	// try to fill symbolList
 	UpdateStateListCurlyBracket(true);
@@ -25,8 +23,7 @@ void SymbolsSettings::GetTrackingSymbolsList(QList<unsigned long>& _list) const{
 }
 
 void SymbolsSettings::SymbolListChanged() const {
-	if(controller_ != nullptr)
-		controller_->SendSetSymbolListIntoFilter(symbolsList_);
+	eventFilter_->SetTrackingSymbolList(symbolsList_);
 }
 
 bool SymbolsSettings::IsCurlyBracket() const noexcept {

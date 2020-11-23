@@ -8,7 +8,7 @@ namespace NS_Timer
 
 // This class is a database model view
 // Provide view from SQLite database to QML
-class DataBaseModel : public QSqlQueryModel
+class DatabaseModel : public QSqlQueryModel
 {
 	Q_OBJECT
 public:
@@ -25,7 +25,7 @@ public:
 		CommentsRole // comments, note
 	};
 	// Constructor
-	explicit DataBaseModel(QObject* parent = nullptr);
+	explicit DatabaseModel(QObject* parent = nullptr);
 
 	// Is the date has any note in different rows. Propagated to QML, for CombineDate layer
 	Q_PROPERTY(bool			dateHasNote
@@ -46,7 +46,6 @@ public:
 	QVariant					Data(const QModelIndex&	item,
 										int							role	= Qt::DisplayRole)	const;
 
-	// Returns query model at the moment
 	QSqlQuery				CurrentQuery()										const;
 	// Query select in table by date
 	bool						SearchDate(const QDate&);
@@ -61,8 +60,8 @@ public:
 public slots:
 	//  Propagated to QML
 
-	void						UpdateModel();
-	void						UpdateModelWithLastQuery();
+	void						Update();
+	void						UpdateWithLastQuery();
 	QVariantList			NoteByDate(const QDate&);
 	void						SearchPeriod(const QDate& from, const QDate& to);
 	void						SearhNote(QString note, bool similarBeginning);
