@@ -1,11 +1,12 @@
 #pragma once
-#include "controller.h"
 #include <QList>
 #include <Windows.h>
 #include <WinUser.h>
 
 namespace NS_Timer
 {
+
+class Controller;
 
 // This class is event filter
 // Tracking keyboard using Win API

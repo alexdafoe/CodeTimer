@@ -9,7 +9,8 @@ namespace NS_Timer
 {
 
 TrayIconWidget::TrayIconWidget(Controller* _controller)
-: controller_(_controller)
+: QObject(nullptr)
+, controller_(_controller)
 {
 	trayMenu_ = QSharedPointer<QMenu>(new QMenu());
 	QScopedPointer <QAction> viewWindow(new QAction("Show", this));
@@ -23,7 +24,7 @@ TrayIconWidget::TrayIconWidget(Controller* _controller)
 	connect(viewWindow.data(), &QAction::triggered, this, &TrayIconWidget::SignalShow);
 	connect(start.data(), &QAction::triggered, controller_, &Controller::SendStartTimer);
 	connect(pause.data(), &QAction::triggered, controller_, &Controller::SendPauseTimer);
-	connect(stop.data(), &QAction::triggered, controller_, &Controller::SsendStopTimer);
+	connect(stop.data(), &QAction::triggered, controller_, &Controller::SendStopTimer);
 	connect(quitAct.data(), &QAction::triggered, this, &TrayIconWidget::SignalQuit);
 
 	trayMenu_->addAction(viewWindow.take());

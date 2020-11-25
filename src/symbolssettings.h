@@ -14,11 +14,11 @@ class SymbolsSettings : public QObject
 public:
 	SymbolsSettings(std::shared_ptr<KeyEventFilter>);
 	SymbolsSettings(const SymbolsSettings&)											= delete;
-	SymbolsSettings(const SymbolsSettings&&)											= delete;
+	SymbolsSettings(SymbolsSettings&&)													= delete;
 	virtual ~SymbolsSettings()																	= default;
 
 	SymbolsSettings&		operator=(const SymbolsSettings&)							= delete;
-	SymbolsSettings&		operator=(const SymbolsSettings&&)						= delete;
+	SymbolsSettings&		operator=(SymbolsSettings&&)								= delete;
 
 	//todo: init instead of UpdateList in Constructor
 	void						GetTrackingSymbolsList(QList<unsigned long>& list)	const;
@@ -42,7 +42,7 @@ public:
 
 	Q_PROPERTY(bool			parentheses_
 						READ		IsParentheses
-						WRITE	IsParentheses
+						WRITE	Parentheses
 						NOTIFY	ParenthesesStateChanged) // 9 0 ( )
 	bool						IsParentheses()													const noexcept;
 	void						Parentheses(bool state);

@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <chrono>
 #include <ctime>
-#include <memory>
+#include <functional>
 
 namespace NS_Timer
 {
@@ -18,7 +18,12 @@ class Timer : public QObject
 	Q_OBJECT
 public:
 	explicit Timer(std::reference_wrapper<Controller>);
+	Timer(const Timer&)															= delete;
+	Timer(Timer&&)																= delete;
 	virtual ~Timer();
+
+	Timer&			operator=(const Timer&)								= delete;
+	Timer&			operator=(Timer&&)										= delete;
 
 	// String that shows start counting of time. Propagated to QML
 	Q_PROPERTY(QString			timeStartStr

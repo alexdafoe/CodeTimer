@@ -7,15 +7,17 @@
 #include <QFile>
 #include <QDate>
 #include <QDebug>
+#include <cassert>
 
 namespace NS_Timer
 {
 
-DatabaseWrap::DatabaseWrap(shared_ptr<DatabaseModel> _dbModel, const QString& _workDirictory)
-: dbModel_(_dbModel)
+DatabaseWrap::DatabaseWrap(std::shared_ptr<DatabaseModel> _dbModel, const QString& _workDirictory)
+: QObject(nullptr)
+, dbModel_(_dbModel)
 , workDirictory_(_workDirictory)
 {
-	assert(dbModel_ && workDirictory_.isEmpty());
+	assert(dbModel_ && !workDirictory_.isEmpty());
 }
 
 DatabaseWrap::~DatabaseWrap() {
@@ -151,7 +153,7 @@ bool DatabaseWrap::CollapseDateByNote(const QDate& _date, const QString& _note) 
 		db_.rollback();
 	} else {
 		qDebug() << "Success transaction: Unite date" << _date.toString("yy.MM.dd") << " with note" << _note;
-		dbModel_->ClearSelectedIdList();
+		dbModel_->ClearIdList();
 		if(!idForDelete.isEmpty()){
 			for(auto id : idForDelete)
 				DeleteRecordById(id);

@@ -11,10 +11,12 @@ class TimerData
 {
 public:
 	TimerData()																= default;
+	TimerData(const TimerData&)										= delete;
+	TimerData(TimerData&&)											= delete;
 	virtual ~TimerData()													= default;
 
-	TimerData&		operator=(const TimerData&)					= default;
-	TimerData&		operator=(TimerData&&)						= default;
+	TimerData&		operator=(const TimerData&)					= delete;
+	TimerData&		operator=(TimerData&&)						= delete;
 
 	void				Reset();
 

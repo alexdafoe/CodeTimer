@@ -70,7 +70,7 @@ Item {
 		standardButtons: StandardButton.Ok | StandardButton.Cancel
 		onAccepted: {
 			dataBase.deleteAllRecords();
-			databaseModel.updateModel();
+			databaseModel.update();
 		}
 	}
 

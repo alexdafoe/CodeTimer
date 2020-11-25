@@ -39,7 +39,7 @@ Item {
 			onClicked: {
 				scaleAnimation.start();
 				if(buttonIndex == 0){
-					databaseModel.updateModel();
+					databaseModel.update();
 					showResult();
 				}
 				else if(buttonIndex > 0 && buttonIndex <= 3){

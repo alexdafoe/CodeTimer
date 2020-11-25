@@ -24,8 +24,14 @@ public:
 		WritingCodeSecsRole, // writing code seconds
 		CommentsRole // comments, note
 	};
-	// Constructor
+
 	explicit DatabaseModel(QObject* parent = nullptr);
+	DatabaseModel(const DatabaseModel&)											= delete;
+	DatabaseModel(DatabaseModel&&)													= delete;
+	virtual ~DatabaseModel()																= default;
+
+	DatabaseModel&		operator=(const DatabaseModel&)						= delete;
+	DatabaseModel&		operator=(DatabaseModel&&)								= delete;
 
 	// Is the date has any note in different rows. Propagated to QML, for CombineDate layer
 	Q_PROPERTY(bool			dateHasNote
@@ -39,14 +45,14 @@ public:
 						READ		DateRowsCount
 						WRITE	DateRowsCount
 						NOTIFY	DateRowsCountChanged)
-	int							DateRowsCount()												const;
+	int							DateRowsCount()													const;
 	void						DateRowsCount(int count);
 
 	// Display model view by role
 	QVariant					Data(const QModelIndex&	item,
 										int							role	= Qt::DisplayRole)	const;
 
-	QSqlQuery				CurrentQuery()										const;
+	QSqlQuery				CurrentQuery()													const;
 	// Query select in table by date
 	bool						SearchDate(const QDate&);
 	// Query select in table by date if chosed couple row for unite date
@@ -55,7 +61,7 @@ public:
 	// The list of id's which selected for unite in 1 row. Propagated to QML
 	Q_INVOKABLE void	AddSelectedId(int id);
 	Q_INVOKABLE void	ClearIdList() noexcept;
-	void						GetIdList(QVariantList &idList)						const;
+	void						GetIdList(QVariantList &idList)									const;
 
 public slots:
 	//  Propagated to QML

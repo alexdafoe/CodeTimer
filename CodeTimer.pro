@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT							+= core qml quick widgets sql
-CONFIG					+= c++14
+CONFIG					+= c++17
 QMAKE_CXXFLAGS	+= -std=c++14
 TARGET					= CodeTimer
 TEMPLATE				= app

@@ -31,11 +31,11 @@ class DatabaseWrap : public QObject
 public:
 	DatabaseWrap(std::shared_ptr<DatabaseModel>, const QString& workDirictory);
 	DatabaseWrap(const DatabaseWrap&)												= delete;
-	DatabaseWrap(const DatabaseWrap&&)											= delete;
+	DatabaseWrap(DatabaseWrap&&)													= delete;
 	virtual ~DatabaseWrap();
 
 	DatabaseWrap&	operator=(const DatabaseWrap&)							= delete;
-	DatabaseWrap&	operator=(const DatabaseWrap&&)							= delete;
+	DatabaseWrap&	operator=(DatabaseWrap&&)									= delete;
 
 	void					ConnectToDB();
 	void					CloseDB();

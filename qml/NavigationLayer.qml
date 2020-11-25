@@ -57,7 +57,7 @@ Item {
 				onExited: buttonRect.color = "#e6e6e6";
 				onClicked: {
 					swipeView.currentIndex = buttonIndex;
-					if(buttonIndex == 2) databaseModel.updateModel();
+					if(buttonIndex == 2) databaseModel.update();
 				}
 			}
 			//=============================

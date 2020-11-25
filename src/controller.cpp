@@ -15,31 +15,25 @@ namespace NS_Timer
 {
 
 Controller::Controller()
-: appPath_(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/CodeTimer/")
+: QObject(nullptr)
+, appPath_(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/CodeTimer/")
 {
 	QDir dir;
 	if(!dir.exists(appPath_))
 		dir.mkpath(appPath_);
-	try {
-		logContext_			= std::make_shared<LogContext>			(new LogContext(appPath_));
-		dbModel_			= std::make_shared<DatabaseModel>		(new DatabaseModel(this));
-		dbWrap_				= std::make_shared<DatabaseWrap>		(new DatabaseWrap(dbModel_, appPath_));
-		eventFilter_			= std::make_shared<KeyEventFilter>		(new KeyEventFilter(this));
-		symbolsSettings_	= std::make_shared<SymbolsSettings>	(new SymbolsSettings(eventFilter_));
-		timer_				= std::make_shared<Timer>					(new Timer(*this));
-		trayIcon_			= std::make_shared<TrayIconWidget>		(new TrayIconWidget(this));
-	} catch (std::exception ex) {
-		qWarning() << ex.what();
-		QMessageBox msg;
-		msg.setIcon(QMessageBox::Critical);
-		msg.setText(ex.what());
-		msg.setStandardButtons(QMessageBox::Ok);
-		msg.exec();
-	}
+
+	logContext_			= std::make_shared<LogContext>(appPath_);
+	dbModel_			= std::make_shared<DatabaseModel>(this);
+	dbWrap_				= std::make_shared<DatabaseWrap>(dbModel_, appPath_);
+	eventFilter_			= std::make_shared<KeyEventFilter>(this);
+	symbolsSettings_	= std::make_shared<SymbolsSettings>(eventFilter_);
+	timer_				= std::make_shared<Timer>(*this);
+	trayIcon_			= std::make_shared<TrayIconWidget>(this);
 }
 
 Controller::~Controller() {
 	qDebug() << "shutdown application";
+	logContext_->Done();
 }
 
 void Controller::Init() {
@@ -106,7 +100,7 @@ void Controller::SendPauseTimer() {
 	if(timer_)	timer_->Pause();
 }
 
-void Controller::SsendStopTimer() {
+void Controller::SendStopTimer() {
 	if(timer_)	timer_->Stop();
 }
 

@@ -13,7 +13,8 @@ namespace NS_Timer
 using namespace std::chrono;
 
 Timer::Timer(std::reference_wrapper<Controller> _controller)
-: controller_(_controller)
+: QObject(nullptr)
+, controller_(_controller)
 {
 	// refresh clock every 1 sec (main.qml onTimerTrigger)
 	trigger_.start(1000);
@@ -114,14 +115,14 @@ void Timer::Start() {
 		timerData_.Reset();
 		controller_.get().EventFilter().SetWindowsHook();
 		durationTimeWorking_ = duration<double>(0);
-		emit timeStartChanged();
+		emit TimeStartChanged();
 	} else { // start after pause
 		qDebug() << "Timer resume";
 		buttonPausePressed_ = false;
 	}
 	startWork_ = time_point_cast<seconds>(system_clock::now());
 	lastActive_ = startWork_;
-	this->FillTimerData();
+	FillTimerData();
 	TimerWorking(true);
 	SessionOngoing(true);
 }
@@ -155,13 +156,13 @@ void Timer::Stop() {
 }
 
 void Timer::FillTimerData() {
-	timerData_->WorkSeconds(int(durationTimeWorking_.count()));
-	timerData_->WritingCodeSeconds(int(durationWritingCode_.count()));
-	timerData_->EndTime(QTime::currentTime());
+	timerData_.WorkSeconds((int32_t)durationTimeWorking_.count());
+	timerData_.WritingCodeSeconds((int32_t)durationWritingCode_.count());
+	timerData_.EndTime(QTime::currentTime());
 }
 
 void Timer::RecordTimerData() {
-	this->FillTimerData();
+	FillTimerData();
 	controller_.get().DB().InsertIntoTable(timerData_);
 	durationWritingCode_ = duration<double>(0);
 	emit TimeWritingCodeChanged();

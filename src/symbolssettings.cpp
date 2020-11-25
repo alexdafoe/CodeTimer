@@ -5,8 +5,9 @@
 namespace NS_Timer
 {
 
-SymbolsSettings::SymbolsSettings(shared_ptr<KeyEventFilter> _eventFilter)
-: eventFilter_(_eventFilter)
+SymbolsSettings::SymbolsSettings(std::shared_ptr<KeyEventFilter> _eventFilter)
+: QObject(nullptr)
+, eventFilter_(_eventFilter)
 {
 	// try to fill symbolList
 	UpdateStateListCurlyBracket(true);

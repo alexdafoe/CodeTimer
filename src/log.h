@@ -15,13 +15,14 @@ class LogContext : public QObject
 public:
 	explicit LogContext(const QString& workDirictory);
 	LogContext(const LogContext&)									= delete;
-	LogContext(const LogContext&&)								= delete;
-	virtual ~LogContext();
+	LogContext(LogContext&&)										= delete;
+	virtual ~LogContext()												= default;
 
 	LogContext&			operator=(const LogContext&)		= delete;
-	LogContext&			operator=(const LogContext&&)		= delete;
+	LogContext&			operator=(LogContext&&)				= delete;
 
 	void						Init();
+	void						Done();
 
 	// Full log file name. Propagated to QML
 	Q_PROPERTY(QString	logFileName_

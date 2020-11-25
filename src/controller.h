@@ -23,11 +23,11 @@ class Controller : public QObject
 public:
 	Controller();
 	Controller(const Controller&)										= delete;
-	Controller(const Controller&&)										= delete;
+	Controller(Controller&&)												= delete;
 	virtual ~Controller();
 
 	Controller&				operator=(const Controller&)			= delete;
-	Controller&				operator=(const Controller&&)		= delete;
+	Controller&				operator=(Controller&&)					= delete;
 
 	void						Init();
 
@@ -46,7 +46,7 @@ public slots:
 	// Sends events to Timer
 	void						SendStartTimer();
 	void						SendPauseTimer();
-	void						SsendStopTimer();
+	void						SendStopTimer();
 	//db
 	void						UpdateModel();
 

@@ -15,28 +15,33 @@ class TrayIconWidget : public QObject
 	Q_OBJECT
 public:
 	explicit TrayIconWidget(Controller*);
-	virtual ~TrayIconWidget()							= default;
+	TrayIconWidget(const TrayIconWidget&)							= delete;
+	TrayIconWidget(TrayIconWidget&&)								= delete;
+	virtual ~TrayIconWidget()												= default;
 
-	void				SetActionEnable(const QString& actionName, bool isEnabled);
-	void				SetTrayIcon(const QString& icon_name);
+	TrayIconWidget&	operator=(const TrayIconWidget&)			= delete;
+	TrayIconWidget&	operator=(TrayIconWidget&&)				= delete;
+
+	void					SetActionEnable(const QString& actionName, bool isEnabled);
+	void					SetTrayIcon(const QString& icon_name);
 
 signals:
-	void				SignalIconActivated();
-	void				SignalShow();
-	void				SignalQuit();
+	void					SignalIconActivated();
+	void					SignalShow();
+	void					SignalQuit();
 
 private slots:
 	// Show/hide main app by double click on tray icon
-	void				IconActivated(QSystemTrayIcon::ActivationReason reason);
+	void					IconActivated(QSystemTrayIcon::ActivationReason reason);
 
 public slots:
 	// Hide main app in tray by click on close button app
-	void				HideIconTray();
+	void					HideIconTray();
 
 private:
+	Controller*										controller_		= nullptr;
 	QSharedPointer<QSystemTrayIcon>		trayIcon_;
 	QSharedPointer<QMenu>					trayMenu_;
-	Controller*										controller_;
 };
 
 }//namespace NS_Timer

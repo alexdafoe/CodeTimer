@@ -9,7 +9,7 @@ namespace NS_Timer
 {
 
 QDateTime LogContext::logTime	= QDateTime::currentDateTime();
-QFile LogContext::logFile			= QFile();
+QFile LogContext::logFile;
 
 // Message handler
 void messageToFile(QtMsgType							type,
@@ -17,17 +17,12 @@ void messageToFile(QtMsgType							type,
 						   const QString&						msg);
 
 LogContext::LogContext(const QString& _workDirictory)
-: workDirictory_(_workDirictory)
+: QObject(nullptr)
+, workDirictory_(_workDirictory)
 , logFileName_("protocol.log")
 {
 	// Install function as a message handler of all debug message
 	qInstallMessageHandler(messageToFile); // comment row for print log in standart tab IDE
-}
-
-LogContext::~LogContext() {
-	qDebug() << "End session =================================================";
-	logFile.flush();
-	logFile.close();
 }
 
 void LogContext::Init() {
@@ -40,6 +35,13 @@ void LogContext::Init() {
 		return;
 	}
 	qDebug() << "Start session =================================================";
+}
+
+void LogContext::Done()
+{
+	qDebug() << "End session =================================================";
+	logFile.flush();
+	logFile.close();
 }
 
 QString LogContext::LogFileName() const {
@@ -60,8 +62,10 @@ void LogContext::OpenLogPath() {
 }
 
 void messageToFile(QtMsgType _type, const QMessageLogContext& _context, const QString& _msg) {
-	if(!LogContext::logFile.isOpen())
+	if(!LogContext::logFile.isOpen()) {
 		return;
+	}
+
 	QTextStream out(&LogContext::logFile);
 	LogContext::logTime = QDateTime::currentDateTime();
 	switch (_type) {
