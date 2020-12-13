@@ -43,7 +43,7 @@ void Controller::Init() {
 
 	// init database
 	dbWrap_->ConnectToDB();
-	dbModel_->Update();
+	dbModel_->update();
 }
 
 LogContext& Controller::Log() const
@@ -92,21 +92,21 @@ void Controller::SendControlKeyDetected() {
 	}
 }
 
-void Controller::SendStartTimer(){
-	if(timer_)	timer_->Start();
+void Controller::SendStartTimer() {
+	if(timer_)	timer_->start();
 }
 
 void Controller::SendPauseTimer() {
-	if(timer_)	timer_->Pause();
+	if(timer_)	timer_->pause();
 }
 
 void Controller::SendStopTimer() {
-	if(timer_)	timer_->Stop();
+	if(timer_)	timer_->stop();
 }
 
 void Controller::UpdateModel()
 {
-	if(dbModel_)	dbModel_->Update();
+	if(dbModel_)	dbModel_->update();
 }
 
 }//namespace NS_Timer

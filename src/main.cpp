@@ -20,9 +20,10 @@ int main(int argc, char *argv[])
 	controller.Init();
 
 	QQmlApplicationEngine engine;
-	engine.rootContext()->setContextProperty("protocolLog",		&controller.Log());
+	engine.rootContext()->setContextProperty("logContext",			&controller.Log());
 	engine.rootContext()->setContextProperty("timer",					&controller.TimerControl());
 	engine.rootContext()->setContextProperty("symbolsSettings",	&controller.KeyControlSettings());
+	engine.rootContext()->setContextProperty("database",			&controller.DB());
 	engine.rootContext()->setContextProperty("databaseModel",	&controller.DBModel());
 	engine.rootContext()->setContextProperty("sysTray",				&controller.SysTrayWidget());
 	engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));

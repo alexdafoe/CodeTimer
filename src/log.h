@@ -25,18 +25,18 @@ public:
 	void						Done();
 
 	// Full log file name. Propagated to QML
-	Q_PROPERTY(QString	logFileName_
+	Q_PROPERTY(QString	LogFileName
 						READ		LogFileName
 						CONSTANT)
-	QString					LogFileName()				const;
+	QString					LogFileName()								const { return logFileName_; }
 
 	// Public static variable for message handler
 	static QDateTime		logTime;
 	static QFile				logFile;
 
 public slots:
-	void						RemoveLogFile();
-	void						OpenLogPath();
+	void						removeLogFile();
+	void						openLogPath();
 
 private:
 	QString					workDirictory_;

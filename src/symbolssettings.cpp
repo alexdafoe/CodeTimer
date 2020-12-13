@@ -27,10 +27,6 @@ void SymbolsSettings::SymbolListChanged() const {
 	eventFilter_->SetTrackingSymbolList(symbolsList_);
 }
 
-bool SymbolsSettings::IsCurlyBracket() const noexcept {
-	return curlyBracket_;
-}
-
 void SymbolsSettings::CurlyBracket(bool _state) {
 	if(curlyBracket_ != _state){
 		curlyBracket_ = _state;
@@ -38,10 +34,6 @@ void SymbolsSettings::CurlyBracket(bool _state) {
 		qDebug() << "CurlyBracket registration: " << _state;
 		emit CurlyBracketStateChanged(_state);
 	}
-}
-
-bool SymbolsSettings::IsAngleBracket() const noexcept {
-	return angleBracket_;
 }
 
 void SymbolsSettings::AngleBracket(bool _state) {
@@ -53,10 +45,6 @@ void SymbolsSettings::AngleBracket(bool _state) {
 	}
 }
 
-bool SymbolsSettings::IsParentheses() const noexcept {
-	return parentheses_;
-}
-
 void SymbolsSettings::Parentheses(bool _state) {
 	if(parentheses_ != _state){
 		parentheses_ = _state;
@@ -64,10 +52,6 @@ void SymbolsSettings::Parentheses(bool _state) {
 		qDebug() << "Parentheses registration: " << _state;
 		emit ParenthesesStateChanged(_state);
 	}
-}
-
-bool SymbolsSettings::IsSemicolon() const noexcept {
-	return semicolon_;
 }
 
 void SymbolsSettings::Semicolon(bool _state) {
@@ -79,10 +63,6 @@ void SymbolsSettings::Semicolon(bool _state) {
 	}
 }
 
-bool SymbolsSettings::IsAsterisk() const noexcept {
-	return asterisk_;
-}
-
 void SymbolsSettings::Asterisk(bool _state) {
 	if(asterisk_ != _state){
 		asterisk_ = _state;
@@ -90,10 +70,6 @@ void SymbolsSettings::Asterisk(bool _state) {
 		qDebug() << "Asterisk registration: " << _state;
 		emit AsteriskStateChanged(_state);
 	}
-}
-
-bool SymbolsSettings::IsOctothorpe() const noexcept {
-	return octothorpe_;
 }
 
 void SymbolsSettings::Octothorpe(bool _state) {

@@ -117,7 +117,7 @@ Item {
         Text {
             id: noteBoxInfo
             font.pointSize: textPointSize
-            text: databaseModel.dateHasNote
+            text: databaseModel.IsDateHasNote
                   ? "This date has notes:"
                   : "This date hasn't notes yet."
         }
@@ -126,7 +126,7 @@ Item {
             id: boxChooseNote
             width: parent.width
             height: 30
-            enabled: databaseModel.dateHasNote
+            enabled: databaseModel.IsDateHasNote
             onActivated: {
                 boxNoteInput.text = boxChooseNote.currentText
             }
@@ -135,12 +135,12 @@ Item {
         Text {
             id: noteInputInfo
             font.pointSize: textPointSize
-            text: (databaseModel.dateRowsCount > 0)
+            text: (databaseModel.DateRowsCount > 0)
                   ? "Write the note:"
                   : "This date hasn't records."
 
             property string toolTipText: "Write the note or select above for unite"
-            ToolTip.visible: (databaseModel.dateRowsCount > 0) ? tollTipNoteInputArea.containsMouse : false
+            ToolTip.visible: (databaseModel.DateRowsCount > 0) ? tollTipNoteInputArea.containsMouse : false
             ToolTip.text: toolTipText
             MouseArea {
                 id: tollTipNoteInputArea
@@ -153,7 +153,7 @@ Item {
             id: noteInputRect
             width: parent.width
             height: 20
-            color: (databaseModel.dateRowsCount > 0)
+            color: (databaseModel.DateRowsCount > 0)
                    ? "white"
                    : "lightgray"
 
@@ -166,7 +166,7 @@ Item {
                 selectByMouse: true
                 mouseSelectionMode: TextInput.SelectCharacters
                 verticalAlignment: TextInput.AlignVCenter
-                enabled: (databaseModel.dateRowsCount > 0)
+                enabled: (databaseModel.DateRowsCount > 0)
                 Component.onCompleted: {
                     text = boxChooseNote.currentText
                 }
@@ -183,7 +183,7 @@ Item {
         anchors.leftMargin: 10
         text: "Select rows..."
         hoverEnabled: true
-        enabled: (databaseModel.dateRowsCount > 2)
+        enabled: (databaseModel.DateRowsCount > 2)
         onClicked: {
             dialogSelectionRow.open();
         }
@@ -202,7 +202,7 @@ Item {
         text: "Ok"
 
         onClicked: {
-            if(databaseModel.dateRowsCount > 1)
+            if(databaseModel.DateRowsCount > 1)
                 dialogConfirm.open();
             else
                 dialogNoRecordsInfo.open();

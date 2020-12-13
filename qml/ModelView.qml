@@ -168,7 +168,7 @@ Item {
             id: contextEditNote
             text: qsTr("Edit note...")
             onTriggered: {
-                currentNote = dataBase.getNoteById(databaseModel.getIdByRowId(tableView.currentRow));
+                currentNote = database.noteById(databaseModel.getIdByRowId(tableView.currentRow));
                 dialogEditNote.open();
             }
         }

@@ -26,9 +26,9 @@ public:
 	void					SetTrayIcon(const QString& icon_name);
 
 signals:
-	void					SignalIconActivated();
-	void					SignalShow();
-	void					SignalQuit();
+	void					signalIconActivated();
+	void					signalShow();
+	void					signalQuit();
 
 private slots:
 	// Show/hide main app by double click on tray icon
@@ -36,7 +36,7 @@ private slots:
 
 public slots:
 	// Hide main app in tray by click on close button app
-	void					HideIconTray();
+	void					hideIconTray();
 
 private:
 	Controller*										controller_		= nullptr;

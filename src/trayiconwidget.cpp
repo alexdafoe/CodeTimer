@@ -21,11 +21,11 @@ TrayIconWidget::TrayIconWidget(Controller* _controller)
 
 	pause->setEnabled(false);
 
-	connect(viewWindow.data(), &QAction::triggered, this, &TrayIconWidget::SignalShow);
+	connect(viewWindow.data(), &QAction::triggered, this, &TrayIconWidget::signalShow);
 	connect(start.data(), &QAction::triggered, controller_, &Controller::SendStartTimer);
 	connect(pause.data(), &QAction::triggered, controller_, &Controller::SendPauseTimer);
 	connect(stop.data(), &QAction::triggered, controller_, &Controller::SendStopTimer);
-	connect(quitAct.data(), &QAction::triggered, this, &TrayIconWidget::SignalQuit);
+	connect(quitAct.data(), &QAction::triggered, this, &TrayIconWidget::signalQuit);
 
 	trayMenu_->addAction(viewWindow.take());
 	trayMenu_->addSeparator();
@@ -62,14 +62,14 @@ void TrayIconWidget::SetTrayIcon(const QString& _iconName) {
 void TrayIconWidget::IconActivated(QSystemTrayIcon::ActivationReason _reason) {
 	switch(_reason){
 		case QSystemTrayIcon::DoubleClick:
-			emit SignalIconActivated();
+			emit signalIconActivated();
 			break;
 		default:
 			break;
 	}
 }
 
-void TrayIconWidget::HideIconTray() {
+void TrayIconWidget::hideIconTray() {
 	trayIcon_->hide();
 }
 

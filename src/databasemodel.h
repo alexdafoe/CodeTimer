@@ -34,18 +34,18 @@ public:
 	DatabaseModel&		operator=(DatabaseModel&&)								= delete;
 
 	// Is the date has any note in different rows. Propagated to QML, for CombineDate layer
-	Q_PROPERTY(bool			dateHasNote
+	Q_PROPERTY(bool			IsDateHasNote
 						READ		IsDateHasNote
 						WRITE	DateHasNote
-						NOTIFY	DateHasNoteChanged)
-	bool						IsDateHasNote()													const;
+						NOTIFY	dateHasNoteChanged)
+	bool						IsDateHasNote()													const noexcept { return dateHasNote_; }
 	void						DateHasNote(bool state);
 	// The number of records by date. Propagated to QML, for CombineDate layer
-	Q_PROPERTY(int			dateRowsCount
+	Q_PROPERTY(int			DateRowsCount
 						READ		DateRowsCount
 						WRITE	DateRowsCount
-						NOTIFY	DateRowsCountChanged)
-	int							DateRowsCount()													const;
+						NOTIFY	dateRowsCountChanged)
+	int							DateRowsCount()													const noexcept { return dateRowsCount_; }
 	void						DateRowsCount(int count);
 
 	// Display model view by role
@@ -59,24 +59,22 @@ public:
 	bool						SearchDateWithIdList(const QDate&);
 
 	// The list of id's which selected for unite in 1 row. Propagated to QML
-	Q_INVOKABLE void	AddSelectedId(int id);
-	Q_INVOKABLE void	ClearIdList() noexcept;
+	Q_INVOKABLE void	addSelectedId(int id);
+	Q_INVOKABLE void	clearIdList() noexcept;
 	void						GetIdList(QVariantList &idList)									const;
 
 public slots:
 	//  Propagated to QML
-
-	void						Update();
-	void						UpdateWithLastQuery();
-	QVariantList			NoteByDate(const QDate&);
-	void						SearchPeriod(const QDate& from, const QDate& to);
-	void						SearhNote(QString note, bool similarBeginning);
-	int							GetIdByRowId(int rowId);
+	void						update();
+	void						updateWithLastQuery();
+	QVariantList			noteByDate(const QDate&);
+	void						searchPeriod(const QDate& from, const QDate& to);
+	void						searhNote(QString note, bool similarBeginning);
+	int							getIdByRowId(int rowId);
 
 signals:
-	void						DateHasNoteChanged(bool);
-	void						DateRowsCountChanged(bool);
-	void						DateUnitedIdListChanged();
+	void						dateHasNoteChanged(bool);
+	void						dateRowsCountChanged(bool);
 
 protected:
 	// Returns hash map for model view

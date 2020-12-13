@@ -44,11 +44,7 @@ void LogContext::Done()
 	logFile.close();
 }
 
-QString LogContext::LogFileName() const {
-	return logFileName_;
-}
-
-void LogContext::RemoveLogFile() {
+void LogContext::removeLogFile() {
 	if(logFile.exists()){
 		logFile.close();
 		logFile.remove();
@@ -56,7 +52,7 @@ void LogContext::RemoveLogFile() {
 	Init();
 }
 
-void LogContext::OpenLogPath() {
+void LogContext::openLogPath() {
 	QFileInfo logFilePath(logFile.fileName());
 	QDesktopServices::openUrl(QUrl(logFilePath.absoluteFilePath(), QUrl::TolerantMode));
 }

@@ -18,19 +18,19 @@ Timer::Timer(std::reference_wrapper<Controller> _controller)
 {
 	// refresh clock every 1 sec (main.qml onTimerTrigger)
 	trigger_.start(1000);
-	QObject::connect(&trigger_, SIGNAL(timeout()), this, SIGNAL(TimerTrigger()));
+	QObject::connect(&trigger_, SIGNAL(timeout()), this, SIGNAL(timerTrigger()));
 	durationWritingCode_ = duration<double>(0);
 }
 
 Timer::~Timer() {
-	if(isSessionOngoing_) Stop(); //even if on pause
+	if(isSessionOngoing_) stop(); //even if on pause
 }
 
 QString Timer::TimeStart() const {
 	return timerData_.TimeStart();
 }
 
-QString Timer::TimeStr() {
+QString Timer::TimerStr() {
 	auto now = time_point_cast<seconds>(system_clock::now());
 	auto realTime = now - lastActive_;
 	double time = durationWritingCode_.count();
@@ -49,30 +49,18 @@ QString Timer::TimeWritingCodeStr() {
 	return timeLeftStr_;
 }
 
-bool Timer::IsTimerWorking() const noexcept{
-	return isTimerWorking_;
-}
-
 void Timer::TimerWorking(bool _trigger) {
 	if(isTimerWorking_ != _trigger){
 		isTimerWorking_ = _trigger;
-		emit TimerWorkingStateChanged(isTimerWorking_);
+		emit timerWorkingStateChanged(isTimerWorking_);
 	}
-}
-
-bool Timer::IsSessionOngoing() const noexcept{
-	return isSessionOngoing_;
 }
 
 void Timer::SessionOngoing(bool _state) {
 	if(isSessionOngoing_ != _state){
 		isSessionOngoing_ = _state;
-		emit TimeStartStatusChanged();
+		emit timeStartStatusChanged();
 	}
-}
-
-unsigned int Timer::MaxPauseDurationSec() const noexcept{
-	return maxPauseDurationSec_;
 }
 
 void Timer::MaxPauseDurationSec(unsigned int _durationSec) {
@@ -82,7 +70,7 @@ void Timer::MaxPauseDurationSec(unsigned int _durationSec) {
 		_durationSec = 3600;
 	if(maxPauseDurationSec_ != _durationSec){
 		maxPauseDurationSec_ = _durationSec;
-		emit MaxPauseDurationSecChanged(_durationSec);
+		emit maxPauseDurationSecChanged(_durationSec);
 		qDebug() << "Maximum time break duration changed: " << _durationSec << "sec";
 	}
 }
@@ -94,7 +82,7 @@ void Timer::SetTimePoint() {
 	duration<double> pauseDuration = now - lastActive_;
 	if(pauseDuration.count() <= maxPauseDurationSec_){
 		durationWritingCode_ += pauseDuration;
-		emit TimeWritingCodeChanged();
+		emit timeWritingCodeChanged();
 	}
 	lastActive_ = now;
 }
@@ -105,7 +93,7 @@ void Timer::CountWorkingTime() {
 	durationTimeWorking_ += workDuration;
 }
 
-void Timer::Start() {
+void Timer::start() {
 	controller_.get().SysTrayWidget().SetActionEnable("Start", false);
 	controller_.get().SysTrayWidget().SetActionEnable("Pause", true);
 	controller_.get().SysTrayWidget().SetTrayIcon("start_standart");
@@ -115,7 +103,7 @@ void Timer::Start() {
 		timerData_.Reset();
 		controller_.get().EventFilter().SetWindowsHook();
 		durationTimeWorking_ = duration<double>(0);
-		emit TimeStartChanged();
+		emit timeStartChanged();
 	} else { // start after pause
 		qDebug() << "Timer resume";
 		buttonPausePressed_ = false;
@@ -127,7 +115,7 @@ void Timer::Start() {
 	SessionOngoing(true);
 }
 
-void Timer::Pause() {
+void Timer::pause() {
 	qDebug() << "Timer pause";
 	buttonPausePressed_ = true;
 	CountWorkingTime();
@@ -137,7 +125,7 @@ void Timer::Pause() {
 	TimerWorking(false);
 }
 
-void Timer::Stop() {
+void Timer::stop() {
 	qDebug() << "Timer stop";
 	controller_.get().EventFilter().UnhookWindowsHook();
 	controller_.get().SysTrayWidget().SetActionEnable("Start", true);
@@ -165,7 +153,7 @@ void Timer::RecordTimerData() {
 	FillTimerData();
 	controller_.get().DB().InsertIntoTable(timerData_);
 	durationWritingCode_ = duration<double>(0);
-	emit TimeWritingCodeChanged();
+	emit timeWritingCodeChanged();
 }
 
 }//namespace NS_Timer

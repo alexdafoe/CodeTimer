@@ -41,14 +41,10 @@ void DatabaseWrap::CloseDB() {
 	}
 }
 
-QString DatabaseWrap::Note() const {
-	return note_;
-}
-
 void DatabaseWrap::Note(const QString& _note) {
 	if(note_ != _note){
 		note_ = _note;
-		emit NoteChanged(_note);
+		emit noteChanged(_note);
 	}
 }
 
@@ -59,12 +55,11 @@ bool DatabaseWrap::InsertIntoTable(const TimerData& _data) {
 
 	QSqlQuery query(db_);
 	if(query.prepare("INSERT INTO " TABLE_NAME " ( " _DATE ", "
-					 _START_TIME ", " _END_TIME ", "
-					 _WORK_TIME ", " _WRITING_CODE_TIME ", "
-					 _WORK_SECS ", " _WRITING_CODE_SECS ", "
-					 _COMMENTS ") "
-					 "VALUES (:day, :start, :end, :worktime, :codetime, :worksecs, :codesecs, :note);"
-					 )){
+							_START_TIME ", " _END_TIME ", "
+							_WORK_TIME ", " _WRITING_CODE_TIME ", "
+							_WORK_SECS ", " _WRITING_CODE_SECS ", "
+							_COMMENTS ") "
+							"VALUES (:day, :start, :end, :worktime, :codetime, :worksecs, :codesecs, :note);")){
 		query.bindValue(":day", _data.DateStart());
 		query.bindValue(":start", _data.TimeStart());
 		query.bindValue(":end", _data.TimeEnd());
@@ -82,11 +77,11 @@ bool DatabaseWrap::InsertIntoTable(const TimerData& _data) {
 		return false;
 	}
 	qDebug() << "Successfully recorded statistic data";
-	dbModel_->Update();
+	dbModel_->update();
 	return true;
 }
 
-bool DatabaseWrap::EditNoteById(int _id, const QString& _newNote) {
+bool DatabaseWrap::editNoteById(int _id, const QString& _newNote) {
 	qDebug() << "edit record id: " << _id << " with new note: " << _newNote;
 	QSqlQuery query(db_);
 	if(query.prepare("UPDATE " TABLE_NAME " SET " _COMMENTS " = :newNote WHERE id = :ID ;")){
@@ -103,7 +98,7 @@ bool DatabaseWrap::EditNoteById(int _id, const QString& _newNote) {
 	return true;
 }
 
-bool DatabaseWrap::CollapseDateByNote(const QDate& _date, const QString& _note) {
+bool DatabaseWrap::collapseDateByNote(const QDate& _date, const QString& _note) {
 	bool sqlState = true;
 	QVector<int> idForDelete;
 	QVariantList listOfKeys;
@@ -153,16 +148,16 @@ bool DatabaseWrap::CollapseDateByNote(const QDate& _date, const QString& _note) 
 		db_.rollback();
 	} else {
 		qDebug() << "Success transaction: Unite date" << _date.toString("yy.MM.dd") << " with note" << _note;
-		dbModel_->ClearIdList();
+		dbModel_->clearIdList();
 		if(!idForDelete.isEmpty()){
 			for(auto id : idForDelete)
-				DeleteRecordById(id);
+				deleteRecordById(id);
 		}
 	}
 	return sqlState;
 }
 
-bool DatabaseWrap::DeleteRecordById(int _id) {
+bool DatabaseWrap::deleteRecordById(int _id) {
 	QSqlQuery query(db_);
 	if(query.prepare("DELETE FROM " TABLE_NAME " WHERE id = :ID ;")){
 		query.bindValue(":ID", _id);
@@ -179,7 +174,7 @@ bool DatabaseWrap::DeleteRecordById(int _id) {
 	return true;
 }
 
-bool DatabaseWrap::DeleteAllRecords() {
+bool DatabaseWrap::deleteAllRecords() {
 	QSqlQuery lastQuery = dbModel_->CurrentQuery();
 	QString queryStr = lastQuery.executedQuery();
 	if(queryStr.contains("WHERE")){
@@ -221,7 +216,7 @@ bool DatabaseWrap::RemoveRecordsInLastQuery(const QSqlQuery& _lastQuery) {
 	return true;
 }
 
-QString DatabaseWrap::NoteById(int _id) {
+QString DatabaseWrap::noteById(int _id) {
 	QSqlQuery query(db_);
 	QString note;
 	if(query.prepare("SELECT " _COMMENTS " FROM " TABLE_NAME " WHERE id = :ID ;")){
@@ -239,11 +234,12 @@ QString DatabaseWrap::NoteById(int _id) {
 }
 
 bool DatabaseWrap::OpenDB() {
-	qDebug() << "open Database";
 	db_ = QSqlDatabase::addDatabase("QSQLITE");
 	db_.setHostName(DATABASE_HOSTNAME);
 	db_.setDatabaseName(workDirictory_ + DATABASE_NAME);
-	return db_.open();
+	bool result = db_.open();
+	qDebug() << "open Database (" << db_.databaseName() << "): " << (result ? "Success" : "Fail");
+	return result;
 }
 
 bool DatabaseWrap::RestroreDB() {
@@ -256,16 +252,16 @@ bool DatabaseWrap::RestroreDB() {
 bool DatabaseWrap::CreateTable() {
 	QSqlQuery query(db_);
 	if(query.exec("CREATE TABLE " TABLE_NAME " ("
-				  "id INTEGER PRIMARY KEY, "
-				  _DATE " DATE NOT NULL, "
-				  _START_TIME " VARCHAR2(20), "
-				  _END_TIME " VARCHAR2(20), "
-				  _WORK_TIME " VARCHAR2(20), "
-				  _WRITING_CODE_TIME " VARCHAR2(20), "
-				  _WORK_SECS " INTEGER NOT NULL, "
-				  _WRITING_CODE_SECS " INTEGER NOT NULL, "
-				  _COMMENTS " VARCHAR2(30)"
-				  ");" )) {
+						"id INTEGER PRIMARY KEY, "
+						_DATE " DATE NOT NULL, "
+						_START_TIME " VARCHAR2(20), "
+						_END_TIME " VARCHAR2(20), "
+						_WORK_TIME " VARCHAR2(20), "
+						_WRITING_CODE_TIME " VARCHAR2(20), "
+						_WORK_SECS " INTEGER NOT NULL, "
+						_WRITING_CODE_SECS " INTEGER NOT NULL, "
+						_COMMENTS " VARCHAR2(30)"
+						");" )) {
 		return true;
 	}
 	qDebug() << "DatabaseWrap error: can't create table \'" << TABLE_NAME << "\' ";

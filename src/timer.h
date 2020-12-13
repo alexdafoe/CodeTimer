@@ -18,53 +18,53 @@ class Timer : public QObject
 	Q_OBJECT
 public:
 	explicit Timer(std::reference_wrapper<Controller>);
-	Timer(const Timer&)															= delete;
-	Timer(Timer&&)																= delete;
+	Timer(const Timer&)																		= delete;
+	Timer(Timer&&)																			= delete;
 	virtual ~Timer();
 
-	Timer&			operator=(const Timer&)								= delete;
-	Timer&			operator=(Timer&&)										= delete;
+	Timer&			operator=(const Timer&)											= delete;
+	Timer&			operator=(Timer&&)													= delete;
 
 	// String that shows start counting of time. Propagated to QML
-	Q_PROPERTY(QString			timeStartStr
+	Q_PROPERTY(QString			TimeStartStr
 						READ				TimeStart
-						NOTIFY			TimeStartChanged)
-	QString			TimeStart()															const;
+						NOTIFY			timeStartChanged)
+	QString			TimeStart()																const;
 
 	// The main timer. Propagated to QML
-	Q_PROPERTY(QString			timerStr
-						READ				TimeStr
+	Q_PROPERTY(QString			TimerStr
+						READ				TimerStr
 						CONSTANT)
-	QString			TimeStr();
+	QString			TimerStr();
 
 	// String that shows time of writing code counting by key symbols. Propagated to QML
-	Q_PROPERTY(QString			timeWritingCodeStr
+	Q_PROPERTY(QString			TimeLeftStr
 						READ				TimeWritingCodeStr
 						CONSTANT)
 	QString			TimeWritingCodeStr();
 
 	// State of main timer. Propagated to QML
-	Q_PROPERTY(bool					isTimerWorking
+	Q_PROPERTY(bool					IsTimerWorking
 						READ				IsTimerWorking
 						WRITE			TimerWorking
-						NOTIFY			TimerWorkingStateChanged)
-	bool				IsTimerWorking()														const noexcept;
+						NOTIFY			timerWorkingStateChanged)
+	bool				IsTimerWorking()														const noexcept { return isTimerWorking_; }
 	void				TimerWorking(bool trigger);
 
 	// State of main timer for correct shows labels in QML layers. Not change on pause. Propagated to QML
-	Q_PROPERTY(bool					isSessionOngoing_
+	Q_PROPERTY(bool					IsSessionOngoing
 						READ				IsSessionOngoing
 						WRITE			SessionOngoing
-						NOTIFY			TimeStartStatusChanged)
-	bool				IsSessionOngoing()													const noexcept;
+						NOTIFY			timeStartStatusChanged)
+	bool				IsSessionOngoing()													const noexcept { return isSessionOngoing_; }
 	void				SessionOngoing(bool state);
 
 	// Maximum seconds between key symbols detection events
-	Q_PROPERTY(unsigned int		maxPauseDurationSec_
+	Q_PROPERTY(unsigned int		MaxPauseDurationSec
 						READ				MaxPauseDurationSec
 						WRITE			MaxPauseDurationSec
-						NOTIFY			MaxPauseDurationSecChanged)
-	unsigned int	MaxPauseDurationSec()											const noexcept;
+						NOTIFY			maxPauseDurationSecChanged)
+	unsigned int	MaxPauseDurationSec()												const noexcept { return maxPauseDurationSec_; }
 	void				MaxPauseDurationSec(unsigned int durationSec);
 
 	// Event from KeyEventFilter that special key detected. Count time of writing code
@@ -74,24 +74,24 @@ public:
 
 public slots:
 	// Propagated to QML
-	void				Start();
-	void				Pause();
-	void				Stop();
+	void				start();
+	void				pause();
+	void				stop();
 
 signals:
-	void				TimerTrigger();
-	void				MaxPauseDurationSecChanged(unsigned int);
-	void				TimerWorkingStateChanged(bool);
-	void				TimeWritingCodeChanged();
-	void				TimeStartStatusChanged();
-	void				TimeStartChanged();
+	void				timerTrigger();
+	void				maxPauseDurationSecChanged(unsigned int);
+	void				timerWorkingStateChanged(bool);
+	void				timeWritingCodeChanged();
+	void				timeStartStatusChanged();
+	void				timeStartChanged();
 
 protected:
 	void				FillTimerData();
 	void				RecordTimerData();
 
 private:
-	using TimePoint	= std::chrono::time_point<std::chrono::system_clock>;
+	using TimePoint			= std::chrono::time_point<std::chrono::system_clock>;
 	using TimeDuration		= std::chrono::duration<double>;
 
 	std::reference_wrapper<Controller>		controller_;

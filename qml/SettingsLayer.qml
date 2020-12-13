@@ -11,8 +11,8 @@ Item {
 
     /*onVisibleChanged: { // if after change btn 'apply' not pressed
         if(isSettingsShow === false){
-            editTextNote.text = dataBase.note
-            slider.value = timer.maxPauseDurationSec
+            editTextNote.text = database.Note
+            slider.value = timer.MaxPauseDurationSec
         }
     }*/
 
@@ -45,44 +45,44 @@ Item {
             rows: 2
             CheckBox {
                 text: qsTr("Curly bracket { }")
-                checked: symbolsSettings.isCurlyBracket
+                checked: symbolsSettings.curlyBracket_
                 onCheckStateChanged: {
-                    symbolsSettings.curlyBracket = this.checked;
+                    symbolsSettings.curlyBracket_ = this.checked;
                 }
             }
             CheckBox {
                 text: qsTr("Parentheses ( )")
-                checked: symbolsSettings.isParentheses
+                checked: symbolsSettings.parentheses_
                 onCheckStateChanged: {
-                    symbolsSettings.parentheses = this.checked;
+                    symbolsSettings.parentheses_ = this.checked;
                 }
             }
             CheckBox {
                 text: qsTr("Angle brackets < >")
-                checked: symbolsSettings.isAngleBracket
+                checked: symbolsSettings.angleBracket_
                 onCheckStateChanged: {
-                    symbolsSettings.angleBracket = this.checked;
+                    symbolsSettings.angleBracket_ = this.checked;
                 }
             }
             CheckBox {
                 text: qsTr("Asterisk *")
-                checked: symbolsSettings.isAsterisk
+                checked: symbolsSettings.asterisk_
                 onCheckStateChanged: {
-                    symbolsSettings.asterisk = this.checked;
+                    symbolsSettings.asterisk_ = this.checked;
                 }
             }
             CheckBox {
                 text: qsTr("Semicolon ;")
-                checked: symbolsSettings.isSemicolon
+                checked: symbolsSettings.semicolon_
                 onCheckStateChanged: {
-                    symbolsSettings.semicolon = this.checked;
+                    symbolsSettings.semicolon_ = this.checked;
                 }
             }
             CheckBox {
                 text: qsTr("Octothorpe #")
-                checked: symbolsSettings.isOctothorpe
+                checked: symbolsSettings.octothorpe_
                 onCheckStateChanged: {
-                    symbolsSettings.octothorpe = this.checked;
+                    symbolsSettings.octothorpe_ = this.checked;
                 }
             }
         } // end grid
@@ -132,7 +132,7 @@ Item {
                     Rectangle {
                         width: slider.visualPosition * parent.width
                         height: parent.height
-                        color: timer.isTimerWorking ? "red" : "brown"
+                        color: timer.IsTimerWorking ? "red" : "brown"
                         radius: 2
                     }
                 }
@@ -140,7 +140,7 @@ Item {
                     txtSlider.text = value
                 }
                 Component.onCompleted: {
-                    slider.value = timer.maxPauseDurationSec
+                    slider.value = timer.MaxPauseDurationSec
                 }
             } // end Slider
 
@@ -163,14 +163,14 @@ Item {
                     font.pixelSize: 12
 
                     onTextChanged: {
-                        if(dataBase.note !== editTextNote.getText(0, editTextNote.length)){
+                        if(database.Note !== editTextNote.getText(0, editTextNote.length)){
                             btnNoteApply.enabled = true;
                         } else {
                             btnNoteApply.enabled = false;
                         }
                     }
                     Component.onCompleted: {
-                        editTextNote.text = dataBase.note
+                        editTextNote.text = database.Note
                     }
                 }
             }
@@ -178,7 +178,7 @@ Item {
                 id: labelLogInfo
                 height: 20
                 font.pointSize: textPointSize
-                text: "Log file: " + protocolLog.logFileName
+                text: "Log file: " + logContext.LogFileName
             }
         } // end columns info
 
@@ -198,7 +198,7 @@ Item {
                 hoverEnabled: true
                 onClicked: {
                     slider.value = 300
-                    timer.maxPauseDurationSec = slider.value
+                    timer.MaxPauseDurationSec = slider.value
                 }
             }
             Button {
@@ -208,11 +208,11 @@ Item {
                 text: "Apply"
                 hoverEnabled: true
                 enabled: {
-                    (timer.maxPauseDurationSec === slider.value) ? false : true
+                    (timer.MaxPauseDurationSec === slider.value) ? false : true
                 }
                 onClicked: {
-                    timer.maxPauseDurationSec = slider.value
-                    txtSlider.text = timer.maxPauseDurationSec
+                    timer.MaxPauseDurationSec = slider.value
+                    txtSlider.text = timer.MaxPauseDurationSec
                 }
             }
             // end btn: slider
@@ -269,7 +269,7 @@ Item {
                 hoverEnabled: true
                 enabled: false
                 onClicked: {
-                    dataBase.note = editTextNote.text;
+                    database.Note = editTextNote.text;
                     btnNoteApply.enabled = false
                 }
             }
@@ -281,7 +281,7 @@ Item {
                 text: "Open Log"
                 hoverEnabled: true
                 onClicked: {
-                    protocolLog.openLogPath();
+                    logContext.openLogPath();
                 }
             }
             Button {
@@ -302,7 +302,7 @@ Item {
         icon: StandardIcon.Warning
         standardButtons: StandardButton.Ok | StandardButton.Cancel
         onAccepted: {
-            protocolLog.removeLogFile();
+            logContext.removeLogFile();
         }
     } // end MessageDialog
 }

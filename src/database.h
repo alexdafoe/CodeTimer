@@ -41,29 +41,29 @@ public:
 	void					CloseDB();
 
 	// The note for current session. Propagated to QML
-	Q_PROPERTY(QString	note_
+	Q_PROPERTY(QString	Note
 						READ		Note
 						WRITE	Note
-						NOTIFY	NoteChanged)
-	QString				Note() const;
+						NOTIFY	noteChanged)
+	QString				Note()																const { return note_; }
 	void					Note(const QString& note);
 
 	// Query insert TimerData into table in database
 	bool					InsertIntoTable(const TimerData&);
 
 signals:
-	void					NoteChanged(QString);
+	void					noteChanged(QString);
 
 public slots:
 	// Propagated to QML
 
 	// Query update note in row by id
-	bool			EditNoteById(int id, const QString& newNote);
+	bool			editNoteById(int id, const QString& newNote);
 	// Query update row by date using note, if more than 1 rows - unite them
-	bool			CollapseDateByNote(const QDate& date, const QString& note); //todo: uniteDateWithNote
-	bool			DeleteRecordById(int id);
-	bool			DeleteAllRecords();
-	QString		NoteById(int id);
+	bool			collapseDateByNote(const QDate& date, const QString& note); //todo: uniteDateWithNote
+	bool			deleteRecordById(int id);
+	bool			deleteAllRecords();
+	QString		noteById(int id);
 
 private:
 	bool			OpenDB();

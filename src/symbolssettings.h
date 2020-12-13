@@ -30,42 +30,42 @@ public:
 						READ		IsCurlyBracket
 						WRITE	CurlyBracket
 						NOTIFY	CurlyBracketStateChanged) // [ ] { }
-	bool						IsCurlyBracket()													const noexcept;
+	bool						IsCurlyBracket()													const noexcept { return curlyBracket_; }
 	void						CurlyBracket(bool state);
 
 	Q_PROPERTY(bool			angleBracket_
 						READ		IsAngleBracket
 						WRITE	AngleBracket
 						NOTIFY	AngleBracketStateChanged) // < >
-	bool						IsAngleBracket()													const noexcept;
+	bool						IsAngleBracket()													const noexcept { return angleBracket_; }
 	void						AngleBracket(bool state);
 
 	Q_PROPERTY(bool			parentheses_
 						READ		IsParentheses
 						WRITE	Parentheses
 						NOTIFY	ParenthesesStateChanged) // 9 0 ( )
-	bool						IsParentheses()													const noexcept;
+	bool						IsParentheses()													const noexcept { return parentheses_; }
 	void						Parentheses(bool state);
 
 	Q_PROPERTY(bool			semicolon_
 						READ		IsSemicolon
 						WRITE	Semicolon
 						NOTIFY	SemicolonStateChanged) // ; :
-	bool						IsSemicolon()														const noexcept;
+	bool						IsSemicolon()														const noexcept { return semicolon_; }
 	void						Semicolon(bool state);
 
 	Q_PROPERTY(bool			asterisk_
 						READ		IsAsterisk
 						WRITE	Asterisk
 						NOTIFY	AsteriskStateChanged) // "*" (numpad) and "8 *"
-	bool						IsAsterisk()															const noexcept;
+	bool						IsAsterisk()															const noexcept {return asterisk_; }
 	void						Asterisk(bool state);
 
 	Q_PROPERTY(bool			octothorpe_
 						READ		IsOctothorpe
 						WRITE	Octothorpe
 						NOTIFY	OctothorpeStateChanged) // 3 #
-	bool						IsOctothorpe()														const noexcept;
+	bool						IsOctothorpe()														const noexcept { return octothorpe_; }
 	void						Octothorpe(bool state);
 
 signals:
@@ -92,7 +92,7 @@ private:
 	bool											parentheses_	= true;
 	bool											semicolon_		= true;
 	bool											asterisk_			= true;
-	bool											octothorpe_		= true;
+	bool											octothorpe_	= true;
 	QList<unsigned long>					symbolsList_;
 };
 

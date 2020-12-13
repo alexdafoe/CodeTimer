@@ -4,7 +4,7 @@ import QtQuick.Controls 2.2
 Item {
     Connections {
         target: timer
-        onTimerTrigger: if(window.visible === true) timerTxt.text = timer.timerStr
+        onTimerTrigger: if(window.visible === true) timerTxt.text = timer.TimerStr
     }
 
     //=============================
@@ -52,7 +52,7 @@ Item {
                 font.family: "Arial"
                 font.letterSpacing: 5
                 font.pixelSize: 56
-                text: timer.timerStr
+                text: timer.TimerStr
             }
         }
     }
@@ -90,9 +90,9 @@ Item {
                     anchors.centerIn: parent
                     font.pixelSize: 18
                     color: "white"
-                    text: timer.isTimerWorking ?
+                    text: timer.IsTimerWorking ?
                               qsTr("Pause") :
-                              timer.isSessionOngoing ?
+                              timer.IsSessionOngoing ?
                               qsTr("Resume") :
                               qsTr("Start")
                 }
@@ -103,10 +103,10 @@ Item {
                     onEntered: { btnRectStart.color = "#272829" }
                     onExited: { btnRectStart.color = "#353637" }
                     onClicked: {
-                        if(timer.isTimerWorking){
-                            timer.Pause();
+                        if(timer.IsTimerWorking){
+                            timer.pause();
                         } else {
-                            timer.Start();
+                            timer.start();
                         }
                     }
                 }

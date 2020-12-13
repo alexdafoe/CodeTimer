@@ -10,25 +10,17 @@ DatabaseModel::DatabaseModel(QObject* _parent)
 : QSqlQueryModel(_parent)
 {}
 
-bool DatabaseModel::IsDateHasNote() const {
-	return dateHasNote_;
-}
-
 void DatabaseModel::DateHasNote(bool _state) {
 	if(dateHasNote_ != _state){
 		dateHasNote_ = _state;
-		emit DateHasNoteChanged(_state);
+		emit dateHasNoteChanged(_state);
 	}
-}
-
-int DatabaseModel::DateRowsCount() const {
-	return dateRowsCount_;
 }
 
 void DatabaseModel::DateRowsCount(int _count) {
 	if(_count >= 0){
 		dateRowsCount_ = _count;
-		emit DateRowsCountChanged(_count);
+		emit dateRowsCountChanged(_count);
 	}
 }
 
@@ -42,7 +34,7 @@ QSqlQuery DatabaseModel::CurrentQuery() const {
 	return this->query();
 }
 
-void DatabaseModel::Update() {
+void DatabaseModel::update() {
 	QSqlQuery query;
 	if(query.exec("SELECT * FROM " TABLE_NAME ";")){
 		this->setQuery(query);
@@ -51,7 +43,7 @@ void DatabaseModel::Update() {
 	}
 }
 
-void DatabaseModel::UpdateWithLastQuery() {
+void DatabaseModel::updateWithLastQuery() {
 	QSqlQuery query = this->query();
 	if(query.exec()){
 		this->setQuery(query);
@@ -60,7 +52,7 @@ void DatabaseModel::UpdateWithLastQuery() {
 	}
 }
 
-QVariantList DatabaseModel::NoteByDate(const QDate& _date) {
+QVariantList DatabaseModel::noteByDate(const QDate& _date) {
 	QVariantList listOfNote;
 	listOfNote.clear();
 	int rowsCount = 0;
@@ -84,12 +76,12 @@ bool DatabaseModel::SearchDate(const QDate& _date) {
 	qDebug() << "Try to find Date:" << _date.toString("yyyy-MM-dd");
 	QSqlQuery query;
 	if(query.prepare("SELECT id, " _DATE ", "
-				  _START_TIME ", " _END_TIME ", "
-				  _WORK_TIME ", " _WRITING_CODE_TIME ", "
-				  _WORK_SECS ", " _WRITING_CODE_SECS ", "
-				  _COMMENTS
-				  " FROM " TABLE_NAME
-				  " WHERE " _DATE " = :searchDate;")){
+							_START_TIME ", " _END_TIME ", "
+							_WORK_TIME ", " _WRITING_CODE_TIME ", "
+							_WORK_SECS ", " _WRITING_CODE_SECS ", "
+							_COMMENTS
+							" FROM " TABLE_NAME
+							" WHERE " _DATE " = :searchDate;")){
 		query.bindValue(":searchDate", _date);
 	} else {
 		qDebug() << "SQL Prepare failed: search date";
@@ -140,12 +132,12 @@ bool DatabaseModel::SearchDateWithIdList(const QDate& _date) {
 	return true;
 }
 
-void DatabaseModel::AddSelectedId(int _id) {
+void DatabaseModel::addSelectedId(int _id) {
 	if(!selectedIdList_.contains(_id))
 		selectedIdList_.append(_id);
 }
 
-void DatabaseModel::ClearIdList() noexcept{
+void DatabaseModel::clearIdList() noexcept{
 	selectedIdList_.clear();
 }
 
@@ -153,7 +145,7 @@ void DatabaseModel::GetIdList(QVariantList& _idList) const {
 	_idList = selectedIdList_;
 }
 
-void DatabaseModel::SearchPeriod(const QDate& _fromDate, const QDate& _toDate){
+void DatabaseModel::searchPeriod(const QDate& _fromDate, const QDate& _toDate){
 	qDebug() << "Try to find Preriod from:" << _fromDate.toString("yyyy-MM-dd") << "\tto:"<< _toDate.toString("yyyy-MM-dd");
 	if(_fromDate > _toDate){
 		qDebug() << "incorrect date range";
@@ -161,12 +153,12 @@ void DatabaseModel::SearchPeriod(const QDate& _fromDate, const QDate& _toDate){
 	}
 	QSqlQuery query;
 	if(query.prepare("SELECT id, " _DATE ", "
-					 _START_TIME ", " _END_TIME ", "
-					 _WORK_TIME ", " _WRITING_CODE_TIME ", "
-					 _WORK_SECS ", " _WRITING_CODE_SECS ", "
-					 _COMMENTS
-					 " FROM " TABLE_NAME
-				  " WHERE " _DATE " >= :dateFrom AND " _DATE " <= :dateTo")){
+							_START_TIME ", " _END_TIME ", "
+							_WORK_TIME ", " _WRITING_CODE_TIME ", "
+							_WORK_SECS ", " _WRITING_CODE_SECS ", "
+							_COMMENTS
+							" FROM " TABLE_NAME
+							" WHERE " _DATE " >= :dateFrom AND " _DATE " <= :dateTo")){
 		query.bindValue(":dateFrom", _fromDate);
 		query.bindValue(":dateTo", _toDate);
 	} else {
@@ -180,7 +172,7 @@ void DatabaseModel::SearchPeriod(const QDate& _fromDate, const QDate& _toDate){
 	this->setQuery(query);
 }
 
-void DatabaseModel::SearhNote(QString _note, bool _similarBeginning){
+void DatabaseModel::searhNote(QString _note, bool _similarBeginning){
 	qDebug() << "Try to find note: " << _note;
 	QString equal("=");
 	if(_similarBeginning) {
@@ -208,7 +200,7 @@ void DatabaseModel::SearhNote(QString _note, bool _similarBeginning){
 	this->setQuery(query);
 }
 
-int DatabaseModel::GetIdByRowId(int _row) {
+int DatabaseModel::getIdByRowId(int _row) {
 	return this->Data(this->index(_row, 0), IdRole).toInt();
 }
 
